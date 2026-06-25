@@ -1,0 +1,108 @@
+name: dbt CI
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "models/**"
+      - "snapshots/**"
+      - "tests/**"
+      - "macros/**"
+      - "seeds/**"
+      - "dbt_project.yml"
+      - "packages.yml"
+
+jobs:
+  dbt-build:
+    runs-on: ubuntu-latest
+    env:
+      DBT_PROFILES_DIR: ./
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dbt
+        run: pip install dbt-snowflake==1.8.*
+
+      - name: Write profiles.yml from GitHub Secrets
+        run: |
+          mkdir -p ./
+          cat > ./profiles.yml <<EOF
+          olist_ecommerce:
+            target: ci
+            outputs:
+              ci:
+                type: snowflake
+                account: ${{ secrets.SNOWFLAKE_CI_ACCOUNT }}
+                user: ${{ secrets.SNOWFLAKE_CI_USER }}
+                password: ${{ secrets.SNOWFLAKE_CI_PASSWORD }}
+                role: ${{ secrets.SNOWFLAKE_CI_ROLE }}
+                warehouse: ${{ secrets.SNOWFLAKE_CI_WAREHOUSE }}
+                database: ${{ secrets.SNOWFLAKE_CI_DATABASE }}
+                schema: CI_PR_${{ github.event.pull_request.number }}
+                threads: 4
+          EOF
+
+
+      - name: Trigger Airbyte dev sync (RDS → dev S3 bucket)
+        run: |
+          pip install requests
+          python -c "
+          import requests, time, sys
+
+          base = 'http://\${{ secrets.AIRBYTE_PRIVATE_IP }}:8006/api/v1'
+          conn_id = '\${{ secrets.AIRBYTE_CI_CONNECTION_ID }}'
+
+          r = requests.post(f'{base}/connections/sync', json={'connectionId': conn_id}, timeout=30)
+          r.raise_for_status()
+          job_id = r.json()['job']['id']
+          print(f'Triggered Airbyte job {job_id}')
+
+          for _ in range(120):
+              r = requests.post(f'{base}/jobs/get', json={'id': job_id}, timeout=30)
+              r.raise_for_status()
+              status = r.json()['job']['status']
+              print(f'Job {job_id}: {status}')
+              if status == 'succeeded':
+                  break
+              if status in ('failed', 'cancelled', 'incomplete'):
+                  sys.exit(f'Airbyte sync failed with status: {status}')
+              time.sleep(30)
+          else:
+              sys.exit('Airbyte sync timed out after 1 hour')
+          "
+
+      - name: dbt deps
+        run: dbt deps
+
+      - name: dbt build (run + test)
+        run: dbt build --target ci
+
+      - name: dbt docs generate (compile check)
+        run: dbt docs generate --target ci
+
+      # Each PR builds into its own CI_PR_<number> schema (see schema above)
+      # so concurrent PRs don't clobber each other. Clean it up after the
+      # job finishes either way, pass or fail.
+      - name: Drop CI schema
+        if: always()
+        run: |
+          pip install snowflake-connector-python
+          python -c "
+          import snowflake.connector, os
+          conn = snowflake.connector.connect(
+              account='${{ secrets.SNOWFLAKE_CI_ACCOUNT }}',
+              user='${{ secrets.SNOWFLAKE_CI_USER }}',
+              password='${{ secrets.SNOWFLAKE_CI_PASSWORD }}',
+              role='${{ secrets.SNOWFLAKE_CI_ROLE }}',
+              warehouse='${{ secrets.SNOWFLAKE_CI_WAREHOUSE }}',
+          )
+          conn.cursor().execute(
+              \"DROP SCHEMA IF EXISTS ${{ secrets.SNOWFLAKE_CI_DATABASE }}.CI_PR_${{ github.event.pull_request.number }}\"
+          )
+          "

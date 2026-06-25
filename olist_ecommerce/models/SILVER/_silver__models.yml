@@ -1,0 +1,113 @@
+version: 2
+
+models:
+  - name: orders_silver
+    description: "Deduplicated order lifecycle records"
+    columns:
+      - name: order_id
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        tests:
+          - not_null
+      - name: order_status
+        tests:
+          - accepted_values:
+              values: ['delivered', 'shipped', 'canceled', 'unavailable',
+                        'invoiced', 'processing', 'created', 'approved']
+
+  - name: orders_items_silver
+    description: "Deduplicated order line items"
+    columns:
+      - name: order_id
+        tests:
+          - not_null
+      - name: order_item_id
+        tests:
+          - not_null
+      - name: product_id
+        tests:
+          - not_null
+      - name: seller_id
+        tests:
+          - not_null
+      - name: price
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: freight_value
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - order_id
+            - order_item_id
+
+  - name: order_payments_silver
+    description: "Deduplicated payment splits per order"
+    columns:
+      - name: order_id
+        tests:
+          - not_null
+      - name: payment_type
+        tests:
+          - accepted_values:
+              values: ['credit_card', 'boleto', 'voucher', 'debit_card', 'not_defined']
+      - name: level_of_installment
+        tests:
+          - accepted_values:
+              values: ['LOW', 'MEDIUM', 'HIGH']
+      - name: payment_value
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - order_id
+            - payment_sequential
+
+  - name: order_reviews_silver
+    description: "Deduplicated customer review records"
+    columns:
+      - name: review_id
+        tests:
+          - unique
+          - not_null
+      - name: order_id
+        tests:
+          - not_null
+      - name: review_score
+        tests:
+          - accepted_values:
+              values: [1, 2, 3, 4, 5]
+
+  - name: product_silver
+    description: "Deduplicated product catalog with translated category"
+    columns:
+      - name: product_id
+        tests:
+          - unique
+          - not_null
+
+  - name: geolocation_silver
+    description: "Zip-prefix-level geolocation centroids, validated against official city list"
+    columns:
+      - name: geolocation_zip_code_prefix
+        tests:
+          - not_null
+      - name: standardized_state_code
+        tests:
+          - not_null
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - geolocation_zip_code_prefix
+            - standardized_city
+            - standardized_state_code

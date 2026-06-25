@@ -1,0 +1,69 @@
+version: '3.8'
+
+x-airflow-common: &airflow-common
+  build: ./airflow-image
+  environment: &airflow-common-env
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres_airflow:5432/airflow
+    AIRFLOW__CORE__FERNET_KEY: 'FB1Z_t9m6A-vC8yvV_J_N2u7j6z89g3H1i2K3L4M5N6='
+    AIRFLOW__CORE__LOAD_EXAMPLES: 'False'
+    AIRFLOW__CORE__LOGGING_LEVEL: INFO
+    DBT_PROFILES_DIR: /opt/airflow/olist_ecommerce
+  volumes:
+    - ./dags:/opt/airflow/dags
+    - ./olist_ecommerce:/opt/airflow/olist_ecommerce
+    - ./logs:/opt/airflow/logs
+  user: "${AIRFLOW_UID:-50000}:0"
+  depends_on:
+    postgres_airflow:
+      condition: service_healthy
+
+services:
+  # 1. The Database Airflow uses to keep track of jobs/history
+  postgres_airflow:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - postgres_airflow_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U airflow"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+  # 2. Airflow Initialization (Runs once to set up the DB and admin user)
+  airflow-init:
+    <<: *airflow-common
+    command: version
+    environment:
+      <<: *airflow-common-env
+      _AIRFLOW_DB_UPGRADE: 'true'
+      _AIRFLOW_WWW_USER_CREATE: 'true'
+      _AIRFLOW_WWW_USER_USERNAME: airflow
+      _AIRFLOW_WWW_USER_PASSWORD: airflow
+
+  # 3. The Web UI (What you see at localhost:8080)
+  airflow-webserver:
+    <<: *airflow-common
+    command: webserver
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: always
+
+  # 4. The Scheduler (The "Brain" that triggers your dbt DAGs)
+  airflow-scheduler:
+    <<: *airflow-common
+    command: scheduler
+    restart: always
+
+volumes:
+  postgres_airflow_data:
