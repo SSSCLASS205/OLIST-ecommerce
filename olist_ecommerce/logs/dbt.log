@@ -1,0 +1,76 @@
+[0m06:41:11.539077 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f0e72019d30>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f0e74fc2990>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f0e71023c50>]}
+
+
+============================== 06:41:11.547765 | 76948f92-b8f7-4e24-9fee-8adab05190b2 ==============================
+[0m06:41:11.547765 [info ] [MainThread]: Running with dbt=1.11.10
+[0m06:41:11.549957 [debug] [MainThread]: running dbt with arguments {'target_path': 'None', 'partial_parse': 'True', 'log_cache_events': 'False', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'introspect': 'True', 'profiles_dir': '/home/sssclass/.dbt', 'printer_width': '80', 'debug': 'False', 'quiet': 'False', 'write_json': 'True', 'use_experimental_parser': 'False', 'fail_fast': 'False', 'static_parser': 'True', 'version_check': 'True', 'invocation_command': 'dbt ', 'no_print': 'None', 'use_colors': 'True', 'log_format': 'default', 'empty': 'None', 'warn_error': 'None', 'indirect_selection': 'eager', 'send_anonymous_usage_stats': 'True', 'cache_selected_only': 'False', 'log_path': '/home/sssclass/Desktop/project/olist_project/dbt_project/olist_ecommerce/logs'}
+[0m06:41:11.790226 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'project_id', 'label': '76948f92-b8f7-4e24-9fee-8adab05190b2', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f0e71b31220>]}
+[0m06:41:11.834895 [debug] [MainThread]: Set downloads directory='/tmp/dbt-downloads-8_gevlpx'
+[0m06:41:11.835647 [debug] [MainThread]: Making package index registry request: GET https://hub.getdbt.com/api/v1/index.json
+[0m06:41:12.387460 [debug] [MainThread]: Response from registry index: GET https://hub.getdbt.com/api/v1/index.json 200
+[0m06:41:12.389865 [debug] [MainThread]: Making package registry request: GET https://hub.getdbt.com/api/v1/dbt-labs/dbt_external_tables.json
+[0m06:41:12.658262 [debug] [MainThread]: Response from registry: GET https://hub.getdbt.com/api/v1/dbt-labs/dbt_external_tables.json 200
+[0m06:41:12.687653 [info ] [MainThread]: Updating lock file in file path: /home/sssclass/Desktop/project/olist_project/dbt_project/olist_ecommerce/package-lock.yml
+[0m06:41:12.692079 [debug] [MainThread]: Set downloads directory='/tmp/dbt-downloads-0prie49x'
+[0m06:41:12.696899 [info ] [MainThread]: Installing dbt-labs/dbt_external_tables
+[0m06:41:13.509705 [info ] [MainThread]: Installed from version 0.12.2
+[0m06:41:13.510801 [info ] [MainThread]: Up to date!
+[0m06:41:13.512373 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'package', 'label': '76948f92-b8f7-4e24-9fee-8adab05190b2', 'property_': 'install', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f0e70c42e00>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f0e70c40af0>]}
+[0m06:41:13.519954 [debug] [MainThread]: Resource report: {"command_name": "deps", "command_success": true, "command_wall_clock_time": 2.1079805, "process_in_blocks": "4424", "process_kernel_time": 0.289633, "process_mem_max_rss": "110236", "process_out_blocks": "3016", "process_user_time": 3.193796}
+[0m06:41:13.521054 [debug] [MainThread]: Command `cli deps` succeeded at 06:41:13.520785 after 2.11 seconds
+[0m06:41:13.521798 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f0e70dbba50>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f0e70e4fe30>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f0e70e4c5f0>]}
+[0m06:41:13.522512 [debug] [MainThread]: Flushing usage events
+[0m06:41:14.399061 [debug] [MainThread]: An error was encountered while trying to flush usage events
+[0m06:48:12.216474 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7ffac7c09d30>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7ffacabc2990>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7ffac6c0fc50>]}
+
+
+============================== 06:48:12.225018 | 35f0cb1f-7900-41a5-8b37-b9d299e1b29c ==============================
+[0m06:48:12.225018 [info ] [MainThread]: Running with dbt=1.11.10
+[0m06:48:12.227750 [debug] [MainThread]: running dbt with arguments {'no_print': 'None', 'fail_fast': 'False', 'empty': 'None', 'use_colors': 'True', 'send_anonymous_usage_stats': 'True', 'warn_error': 'None', 'profiles_dir': '/home/sssclass/.dbt', 'write_json': 'True', 'invocation_command': 'dbt ', 'version_check': 'True', 'static_parser': 'True', 'debug': 'False', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'target_path': 'None', 'log_cache_events': 'False', 'introspect': 'True', 'log_path': '/home/sssclass/Desktop/project/olist_project/dbt_project/olist_ecommerce/logs', 'indirect_selection': 'eager', 'quiet': 'False', 'partial_parse': 'True', 'cache_selected_only': 'False', 'printer_width': '80', 'log_format': 'default', 'use_experimental_parser': 'False'}
+[0m06:48:12.439267 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'project_id', 'label': '35f0cb1f-7900-41a5-8b37-b9d299e1b29c', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7ffac7925220>]}
+[0m06:48:12.477071 [debug] [MainThread]: Set downloads directory='/tmp/dbt-downloads-ejvxzo11'
+[0m06:48:12.477896 [debug] [MainThread]: Making package index registry request: GET https://hub.getdbt.com/api/v1/index.json
+[0m06:48:12.753795 [debug] [MainThread]: Response from registry index: GET https://hub.getdbt.com/api/v1/index.json 200
+[0m06:48:12.759990 [debug] [MainThread]: Making package registry request: GET https://hub.getdbt.com/api/v1/dbt-labs/dbt_external_tables.json
+[0m06:48:12.913302 [debug] [MainThread]: Response from registry: GET https://hub.getdbt.com/api/v1/dbt-labs/dbt_external_tables.json 200
+[0m06:48:12.934535 [info ] [MainThread]: Installing dbt-labs/dbt_external_tables
+[0m06:48:13.739832 [info ] [MainThread]: Installed from version 0.12.2
+[0m06:48:13.741869 [info ] [MainThread]: Up to date!
+[0m06:48:13.742891 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'package', 'label': '35f0cb1f-7900-41a5-8b37-b9d299e1b29c', 'property_': 'install', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7ffac6a1acf0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7ffac6a189e0>]}
+[0m06:48:13.745508 [debug] [MainThread]: Resource report: {"command_name": "deps", "command_success": true, "command_wall_clock_time": 1.6708968, "process_in_blocks": "232", "process_kernel_time": 0.312249, "process_mem_max_rss": "110388", "process_out_blocks": "2840", "process_user_time": 3.450557}
+[0m06:48:13.746622 [debug] [MainThread]: Command `cli deps` succeeded at 06:48:13.746404 after 1.67 seconds
+[0m06:48:13.747539 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7ffac69a3850>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7ffac7377d40>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7ffac6a388c0>]}
+[0m06:48:13.748561 [debug] [MainThread]: Flushing usage events
+[0m06:48:14.827297 [debug] [MainThread]: An error was encountered while trying to flush usage events
+[0m13:36:20.073290 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f49b5805e80>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f49b877e990>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f49b480fc50>]}
+
+
+============================== 13:36:20.082956 | 7b809f17-5be2-4cd9-9006-69a2a38d6752 ==============================
+[0m13:36:20.082956 [info ] [MainThread]: Running with dbt=1.11.10
+[0m13:36:20.084169 [debug] [MainThread]: running dbt with arguments {'empty': 'None', 'introspect': 'True', 'send_anonymous_usage_stats': 'True', 'version_check': 'True', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'cache_selected_only': 'False', 'log_path': '/home/sssclass/Desktop/project/olist_project/dbt_project/olist_ecommerce/logs', 'no_print': 'None', 'log_format': 'default', 'debug': 'False', 'fail_fast': 'False', 'write_json': 'True', 'indirect_selection': 'eager', 'use_experimental_parser': 'False', 'invocation_command': 'dbt ', 'use_colors': 'True', 'target_path': 'None', 'printer_width': '80', 'quiet': 'False', 'log_cache_events': 'False', 'warn_error': 'None', 'partial_parse': 'True', 'static_parser': 'True', 'profiles_dir': '/home/sssclass/.dbt'}
+[0m13:36:20.284233 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'project_id', 'label': '7b809f17-5be2-4cd9-9006-69a2a38d6752', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f49b5501220>]}
+[0m13:36:20.317323 [debug] [MainThread]: Set downloads directory='/tmp/dbt-downloads-fv4mq43e'
+[0m13:36:20.318411 [debug] [MainThread]: Making package index registry request: GET https://hub.getdbt.com/api/v1/index.json
+[0m13:36:20.822865 [debug] [MainThread]: Response from registry index: GET https://hub.getdbt.com/api/v1/index.json 200
+[0m13:36:20.825126 [debug] [MainThread]: Making package registry request: GET https://hub.getdbt.com/api/v1/dbt-labs/dbt_external_tables.json
+[0m13:36:20.940810 [debug] [MainThread]: Response from registry: GET https://hub.getdbt.com/api/v1/dbt-labs/dbt_external_tables.json 200
+[0m13:36:20.952981 [debug] [MainThread]: Making package registry request: GET https://hub.getdbt.com/api/v1/dbt-labs/dbt_utils.json
+[0m13:36:21.055420 [debug] [MainThread]: Response from registry: GET https://hub.getdbt.com/api/v1/dbt-labs/dbt_utils.json 200
+[0m13:36:21.071552 [info ] [MainThread]: Updating lock file in file path: /home/sssclass/Desktop/project/olist_project/dbt_project/olist_ecommerce/package-lock.yml
+[0m13:36:21.088926 [debug] [MainThread]: Set downloads directory='/tmp/dbt-downloads-3ywsgvmc'
+[0m13:36:21.100139 [info ] [MainThread]: Installing dbt-labs/dbt_external_tables
+[0m13:36:21.808306 [info ] [MainThread]: Installed from version 0.12.2
+[0m13:36:21.809221 [info ] [MainThread]: Up to date!
+[0m13:36:21.810109 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'package', 'label': '7b809f17-5be2-4cd9-9006-69a2a38d6752', 'property_': 'install', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f49b461acf0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f49b461abe0>]}
+[0m13:36:21.810975 [info ] [MainThread]: Installing dbt-labs/dbt_utils
+[0m13:36:22.407112 [info ] [MainThread]: Installed from version 1.3.0
+[0m13:36:22.407895 [info ] [MainThread]: Updated version available: 1.4.0
+[0m13:36:22.408633 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'package', 'label': '7b809f17-5be2-4cd9-9006-69a2a38d6752', 'property_': 'install', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f49b45a3a50>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f49b463bb60>]}
+[0m13:36:22.409426 [info ] [MainThread]: 
+[0m13:36:22.417502 [info ] [MainThread]: Updates available for packages: ['dbt-labs/dbt_utils']                 
+Update your versions in packages.yml, then run dbt deps
+[0m13:36:22.423534 [debug] [MainThread]: Resource report: {"command_name": "deps", "command_success": true, "command_wall_clock_time": 2.449095, "process_in_blocks": "2496", "process_kernel_time": 0.311236, "process_mem_max_rss": "110772", "process_out_blocks": "5128", "process_user_time": 2.82477}
+[0m13:36:22.424492 [debug] [MainThread]: Command `cli deps` succeeded at 13:36:22.424277 after 2.45 seconds
+[0m13:36:22.425181 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f49b48c3e70>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f49b459f150>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f49b44f3380>]}
+[0m13:36:22.427523 [debug] [MainThread]: Flushing usage events
+[0m13:36:23.428037 [debug] [MainThread]: An error was encountered while trying to flush usage events
