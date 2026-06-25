@@ -11,16 +11,7 @@ Infrastructure notes (from terraform):
   - Airbyte private IP is stored in Secrets Manager under
     olist/airbyte-config so we never hard-code it here.
   - airbyte_sg allows inbound 8000-8001 from MWAA CIDR; port 8006
-    must be added (see terraform fix note below).
 
-Terraform fix required in 02_security_groups.tf — add port 8006 to airbyte_sg:
-  ingress {
-    description = "Airbyte API from MWAA only"
-    from_port   = 8006
-    to_port     = 8006
-    protocol    = "tcp"
-    cidr_blocks = ["10.0.1.0/24"]
-  }
 """
 
 from datetime import datetime, timedelta
