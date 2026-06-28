@@ -3,11 +3,11 @@ version: 2
 sources:
   - name: BRONZE 
     description: "Raw Olist marketplace data synced via Airbyte from RDS to S3 in Parquet format"
-    database: OLIST_warehouse          
+    database: OLIST_WAREHOUSE          
     schema: BRONZE      
     
     external:
-      location: "@staging/raw/" 
+      location: "{{ '@my_s3_external_dev_stage' if target.name != 'prod' else '@my_s3_external_stage' }}/raw/"
       file_format: "( type = parquet )"
       auto_refresh: true      
 

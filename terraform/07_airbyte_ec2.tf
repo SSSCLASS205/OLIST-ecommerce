@@ -143,3 +143,18 @@ resource "aws_autoscaling_group" "airbyte_asg" {
     propagate_at_launch = true
   }
 }
+
+data "aws_instances" "airbyte_asg" {
+  filter {
+    name   = "tag:aws:autoscaling:groupName"
+    values = [aws_autoscaling_group.airbyte_asg.name]
+  }
+
+  filter {
+    name   = "instance-state-name"
+    values = ["running"]
+  }
+
+  # Ensure ASG is created before querying instances
+  depends_on = [aws_autoscaling_group.airbyte_asg]
+}

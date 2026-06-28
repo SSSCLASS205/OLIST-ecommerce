@@ -1,3 +1,5 @@
+# 1. RDS Credentials
+
 resource "aws_secretsmanager_secret" "rds_creds" {
   name = "${var.project}/rds-oltp-credentials"
 }
@@ -13,13 +15,12 @@ resource "aws_secretsmanager_secret_version" "rds_creds" {
   })
 }
 
+# 2. GitHub Deploy Key 
+
 resource "aws_secretsmanager_secret" "github_deploy_key" {
   name = "${var.project}/github-dbt-deploy-key"
 }
 
-# Populate out-of-band: generate a read-only deploy key in the dbt repo's
-# GitHub settings (Settings > Deploy keys, do NOT check "Allow write access"),
-# then store the private key here. Terraform never sees the key material.
 resource "aws_secretsmanager_secret_version" "github_deploy_key" {
   secret_id     = aws_secretsmanager_secret.github_deploy_key.id
   secret_string = jsonencode({
@@ -31,11 +32,13 @@ resource "aws_secretsmanager_secret_version" "github_deploy_key" {
     ignore_changes = [secret_string]
   }
 }
+
+# 3. Snowflake Credentials 
+
+resource "aws_secretsmanager_secret" "snowflake_creds" {
   name = "${var.project}/snowflake-credentials"
 }
 
-# Populate the actual secret value out-of-band (terraform should not store
-# Snowflake passwords in state in plaintext long-term); placeholder here.
 resource "aws_secretsmanager_secret_version" "snowflake_creds" {
   secret_id     = aws_secretsmanager_secret.snowflake_creds.id
   secret_string = jsonencode({
@@ -51,21 +54,17 @@ resource "aws_secretsmanager_secret_version" "snowflake_creds" {
     ignore_changes = [secret_string]
   }
 }
+
+
+# 4. Airbyte Configuration 
 resource "aws_secretsmanager_secret" "airbyte_config" {
   name = "${var.project}/airbyte-config"
 }
 
-# Populate after first `terraform apply` once the EC2 is up:
-#   aws secretsmanager put-secret-value \
-#     --secret-id olist/airbyte-config \
-#     --secret-string '{"private_ip": "<AIRBYTE_EC2_PRIVATE_IP>", "workspace_id": "<AIRBYTE_WORKSPACE_UUID>"}'
-#
-# Get private IP from: terraform output airbyte_instance_private_ip
-# Get workspace ID from: Airbyte UI → Settings → Workspace → Workspace ID
 resource "aws_secretsmanager_secret_version" "airbyte_config" {
   secret_id     = aws_secretsmanager_secret.airbyte_config.id
   secret_string = jsonencode({
-    private_ip   = "REPLACE_AFTER_TERRAFORM_APPLY"
+    private_ip    = "REPLACE_AFTER_TERRAFORM_APPLY"
     workspace_id = "REPLACE_FROM_AIRBYTE_UI"
   })
 
