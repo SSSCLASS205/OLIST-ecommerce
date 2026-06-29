@@ -4,8 +4,7 @@ sources:
   - name: BRONZE 
     description: "Raw Olist marketplace data synced via Airbyte from RDS to S3 in Parquet format"
     database: OLIST_WAREHOUSE          
-    schema: BRONZE      
-
+    schema: "{{ target.schema ~ '_BRONZE' if target.name != 'prod' else 'BRONZE' }}"
     tables:
       - name: orders_bronze
         description: "Core order lifecycle and status tracking"

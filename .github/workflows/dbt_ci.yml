@@ -48,6 +48,10 @@ jobs:
       - name: dbt deps
         working-directory: olist_ecommerce
         run: dbt deps
+        
+      - name: Stage External Sources
+        working-directory: olist_ecommerce
+        run: dbt run-operation stage_external_sources --target ci
 
       - name: dbt build (run + test)
         working-directory: olist_ecommerce
