@@ -2,9 +2,9 @@
     materialized='table'
 ) }}
 
-
 with raw_numbers as (
-    SELECT ROW_NUMBER() over() -1 AS row_num
+    SELECT 
+        ROW_NUMBER() OVER (ORDER BY NULL) - 1 AS row_num
     FROM TABLE(GENERATOR(ROWCOUNT => 7305))
 ),
 date_spine AS(
@@ -25,7 +25,7 @@ final_date_dimension AS (
         EXTRACT(year FROM date_day) || '-Q' || EXTRACT(quarter FROM date_day) AS year_quarter_code,
         
         EXTRACT(month FROM date_day) AS month_number,
-        TO_CHAR(date_day, 'MMMM') AS month_name,
+        TO_CHAR(date_day, 'MONTH') AS month_name,
         TO_CHAR(date_day, 'MON') AS month_name_short,
         EXTRACT(year FROM date_day) || '-' || TO_CHAR(date_day, 'MM') AS year_month_code,
         
@@ -34,7 +34,7 @@ final_date_dimension AS (
         
         EXTRACT(day FROM date_day) AS day_of_month,
         EXTRACT(dayofweek FROM date_day) AS day_of_week_number,
-        TO_CHAR(date_day, 'DAY') AS day_name,
+        TO_CHAR(date_day, 'FMDAY') AS day_name,
         TO_CHAR(date_day, 'DY') AS day_name_short,
         
         CASE 
@@ -45,4 +45,3 @@ final_date_dimension AS (
 )
 
 SELECT * FROM final_date_dimension
-
