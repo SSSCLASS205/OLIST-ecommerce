@@ -8,7 +8,7 @@ sources:
     
     external:
       location: "{{ '@my_s3_external_dev_stage' if target.name != 'prod' else '@my_s3_external_stage' }}/raw/"
-      file_format: "( type = parquet )"
+      file_format: "type = parquet"
       auto_refresh: true      
 
     tables:

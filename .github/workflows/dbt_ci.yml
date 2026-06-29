@@ -72,6 +72,6 @@ jobs:
               warehouse='${{ secrets.SNOWFLAKE_CI_WAREHOUSE }}',
           )
           conn.cursor().execute(
-              \"DROP SCHEMA IF EXISTS ${{ secrets.SNOWFLAKE_CI_DATABASE }}.CI_PR_${{ github.event.pull_request.number }}\"
+              'DROP SCHEMA IF EXISTS ${{ secrets.SNOWFLAKE_CI_DATABASE }}.CI_PR_${{ github.event.pull_request.number }}'
           )
           "

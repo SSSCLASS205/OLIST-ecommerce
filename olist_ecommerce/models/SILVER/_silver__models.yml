@@ -14,7 +14,8 @@ models:
       - name: order_status
         tests:
           - accepted_values:
-              values: ['delivered', 'shipped', 'canceled', 'unavailable',
+              arguments:
+                values: ['delivered', 'shipped', 'canceled', 'unavailable',
                         'invoiced', 'processing', 'created', 'approved']
 
   - name: orders_items_silver
