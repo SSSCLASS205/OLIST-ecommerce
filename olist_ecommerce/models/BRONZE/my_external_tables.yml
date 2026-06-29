@@ -1,21 +1,21 @@
 version: 2
 
 sources:
-  - name: BRONZE 
+  - name: BRONZE
     description: "Raw Olist marketplace data synced via Airbyte from RDS to S3 in Parquet format"
-    database: OLIST_WAREHOUSE          
-    schema: BRONZE      
-    
+    database: OLIST_WAREHOUSE
+    schema: BRONZE
+
     external:
       location: "{{ '@my_s3_external_dev_stage' if target.name != 'prod' else '@my_s3_external_stage' }}/raw/"
-      file_format: "type = parquet"
-      auto_refresh: true      
+      file_format: "(type = parquet)"
+      auto_refresh: true
 
     tables:
       - name: orders_bronze
         description: "Core order lifecycle and status tracking"
         external:
-          location: "@staging/raw/orders/"
+          location: "{{ '@my_s3_external_dev_stage' if target.name != 'prod' else '@my_s3_external_stage' }}/raw/orders/"
         columns:
           - name: _airbyte_emitted_at
             data_type: timestamp
@@ -48,7 +48,7 @@ sources:
       - name: order_items_bronze
         description: "Line-item details for items contained within an order"
         external:
-          location: "@staging/raw/order_items/"
+          location: "{{ '@my_s3_external_dev_stage' if target.name != 'prod' else '@my_s3_external_stage' }}/raw/order_items/"
         columns:
           - name: _airbyte_emitted_at
             data_type: timestamp
@@ -78,7 +78,7 @@ sources:
       - name: order_payments_bronze
         description: "Payment details split by payment option"
         external:
-          location: "@staging/raw/order_payments/"
+          location: "{{ '@my_s3_external_dev_stage' if target.name != 'prod' else '@my_s3_external_stage' }}/raw/order_payments/"
         columns:
           - name: _airbyte_emitted_at
             data_type: timestamp
@@ -102,7 +102,7 @@ sources:
       - name: order_reviews_bronze
         description: "Customer satisfaction feedback data"
         external:
-          location: "@staging/raw/order_reviews/"
+          location: "{{ '@my_s3_external_dev_stage' if target.name != 'prod' else '@my_s3_external_stage' }}/raw/order_reviews/"
         columns:
           - name: _airbyte_emitted_at
             data_type: timestamp
@@ -132,7 +132,7 @@ sources:
       - name: customers_bronze
         description: "Customer demographics and geographical mapping info"
         external:
-          location: "@staging/raw/customers/"
+          location: "{{ '@my_s3_external_dev_stage' if target.name != 'prod' else '@my_s3_external_stage' }}/raw/customers/"
         columns:
           - name: _airbyte_emitted_at
             data_type: timestamp
@@ -156,7 +156,7 @@ sources:
       - name: products_bronze
         description: "Product catalog meta-data including dimensions"
         external:
-          location: "@staging/raw/products/"
+          location: "{{ '@my_s3_external_dev_stage' if target.name != 'prod' else '@my_s3_external_stage' }}/raw/products/"
         columns:
           - name: _airbyte_emitted_at
             data_type: timestamp
@@ -192,7 +192,7 @@ sources:
       - name: sellers_bronze
         description: "Merchant/Seller demographic locations"
         external:
-          location: "@staging/raw/sellers/"
+          location: "{{ '@my_s3_external_dev_stage' if target.name != 'prod' else '@my_s3_external_stage' }}/raw/sellers/"
         columns:
           - name: _airbyte_emitted_at
             data_type: timestamp
@@ -213,7 +213,7 @@ sources:
       - name: geolocation_bronze
         description: "Brazilian zip codes with latitude/longitude coordinates"
         external:
-          location: "@staging/raw/geolocation/"
+          location: "{{ '@my_s3_external_dev_stage' if target.name != 'prod' else '@my_s3_external_stage' }}/raw/geolocation/"
         columns:
           - name: _airbyte_emitted_at
             data_type: timestamp
@@ -237,7 +237,7 @@ sources:
       - name: product_category_name_translation_bronze
         description: "Mapping of Portuguese category names to English"
         external:
-          location: "@staging/raw/product_category_name_translation/"
+          location: "{{ '@my_s3_external_dev_stage' if target.name != 'prod' else '@my_s3_external_stage' }}/raw/product_category_name_translation/"
         columns:
           - name: _airbyte_emitted_at
             data_type: timestamp

@@ -65,12 +65,12 @@ jobs:
           python -c "
           import snowflake.connector, os
           conn = snowflake.connector.connect(
-              account='${{ secrets.SNOWFLAKE_CI_ACCOUNT }}',
-              user='${{ secrets.SNOWFLAKE_CI_USER }}',
-              password='${{ secrets.SNOWFLAKE_CI_PASSWORD }}',
-              role='${{ secrets.SNOWFLAKE_CI_ROLE }}',
-              warehouse='${{ secrets.SNOWFLAKE_CI_WAREHOUSE }}',
-          )
+            account='${{ secrets.SNOWFLAKE_CI_ACCOUNT }}',
+            user='${{ secrets.SNOWFLAKE_CI_USER }}',
+            password='${{ secrets.SNOWFLAKE_CI_PASSWORD }}',
+            role='${{ secrets.SNOWFLAKE_CI_ROLE }}',
+            warehouse='${{ secrets.SNOWFLAKE_CI_WAREHOUSE }}',
+          ) 
           conn.cursor().execute(
               'DROP SCHEMA IF EXISTS ${{ secrets.SNOWFLAKE_CI_DATABASE }}.CI_PR_${{ github.event.pull_request.number }}'
           )

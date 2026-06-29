@@ -14,9 +14,8 @@ models:
       - name: order_status
         tests:
           - accepted_values:
-              arguments:
-                values: ['delivered', 'shipped', 'canceled', 'unavailable',
-                        'invoiced', 'processing', 'created', 'approved']
+              values: ['delivered', 'shipped', 'canceled', 'unavailable',
+                      'invoiced', 'processing', 'created', 'approved']
 
   - name: orders_items_silver
     description: "Deduplicated order line items"
