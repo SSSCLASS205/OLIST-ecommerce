@@ -41,4 +41,4 @@ SELECT
     price,
     freight_value,
     _airbyte_emitted_at
-FROM deduped;
+FROM deduped

@@ -43,4 +43,4 @@ aggregated_data AS (
         full_state_name
 )
 
-SELECT * FROM aggregated_data;
+SELECT * FROM aggregated_data

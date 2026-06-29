@@ -53,4 +53,4 @@ SELECT
     bp._airbyte_emitted_at
 FROM deduped_products bp
 LEFT JOIN category_translation t 
-    ON bp.product_category_name = t.product_category_name;
+    ON bp.product_category_name = t.product_category_name

@@ -2,7 +2,7 @@
 
 {{
     config(
-        target_database='OLIST_warehouse',
+        target_database='OLIST_WAREHOUSE',
         target_schema='SILVER',
         unique_key='customer_id',
         strategy='check',

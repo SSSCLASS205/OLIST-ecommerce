@@ -44,6 +44,6 @@ SELECT
     REPLACE(review_creation_date::VARCHAR, '-', '')::INT as review_creation_date_id,
     {{ dbt_utils.generate_surrogate_key(['review_id', 'order_id']) }} AS feedback_id,
     review_score,
-    DATEDIFF(hour, review_creation_date, review_answer_timestamp) AS hours_to_answer,
+    DATEDIFF(hour, review_creation_date, CAST(review_answer_timestamp AS DATE)) AS hours_to_answer,
     _airbyte_emitted_at
-FROM joined_data;
+FROM joined_data

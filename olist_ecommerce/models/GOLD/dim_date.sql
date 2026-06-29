@@ -44,5 +44,5 @@ final_date_dimension AS (
     FROM date_spine
 )
 
-SELECT * FROM final_date_dimension;
+SELECT * FROM final_date_dimension
 

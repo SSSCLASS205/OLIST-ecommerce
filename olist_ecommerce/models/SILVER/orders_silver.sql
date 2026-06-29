@@ -59,4 +59,4 @@ SELECT
     order_delivered_customer_date,
     order_estimated_delivery_date,
     _airbyte_emitted_at 
-FROM deduped;
+FROM deduped

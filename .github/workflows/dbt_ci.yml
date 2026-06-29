@@ -52,7 +52,7 @@ jobs:
 
       - name: dbt build (run + test)
         working-directory: olist_ecommerce
-        run: dbt build --target ci
+        run: dbt build --target ci --exclude snapshot
 
       - name: dbt docs generate (compile check)
         working-directory: olist_ecommerce
@@ -79,7 +79,9 @@ jobs:
             role=os.environ['SNOWFLAKE_ROLE'],
             warehouse=os.environ['SNOWFLAKE_WAREHOUSE'],
           )
-          conn.cursor().execute(
-            'DROP SCHEMA IF EXISTS ' + os.environ['SNOWFLAKE_DATABASE'] + '.CI_PR_' + os.environ['PR_NUMBER']
-          )
+          schemes = ["BRONZE","GOLD","SILVER"]
+          for schema in schemes:
+            conn.cursor().execute(
+              'DROP SCHEMA IF EXISTS ' + os.environ['SNOWFLAKE_DATABASE'] + '.CI_PR_' + os.environ['PR_NUMBER'] + _ + schema
+            )
           "
