@@ -1,21 +1,18 @@
 version: 2
 
 sources:
-  - name: BRONZE
+  - name: BRONZE 
     description: "Raw Olist marketplace data synced via Airbyte from RDS to S3 in Parquet format"
-    database: OLIST_WAREHOUSE
-    schema: BRONZE
-
-    external:
-      location: "{{ '@my_s3_external_dev_stage' if target.name != 'prod' else '@my_s3_external_stage' }}/raw/"
-      file_format: "(type = parquet)"
-      auto_refresh: true
+    database: OLIST_WAREHOUSE          
+    schema: BRONZE      
 
     tables:
       - name: orders_bronze
         description: "Core order lifecycle and status tracking"
         external:
           location: "{{ '@my_s3_external_dev_stage' if target.name != 'prod' else '@my_s3_external_stage' }}/raw/orders/"
+          file_format: "(type = parquet)"
+          auto_refresh: true
         columns:
           - name: _airbyte_emitted_at
             data_type: timestamp
@@ -49,6 +46,8 @@ sources:
         description: "Line-item details for items contained within an order"
         external:
           location: "{{ '@my_s3_external_dev_stage' if target.name != 'prod' else '@my_s3_external_stage' }}/raw/order_items/"
+          file_format: "(type = parquet)"
+          auto_refresh: true
         columns:
           - name: _airbyte_emitted_at
             data_type: timestamp
@@ -79,6 +78,8 @@ sources:
         description: "Payment details split by payment option"
         external:
           location: "{{ '@my_s3_external_dev_stage' if target.name != 'prod' else '@my_s3_external_stage' }}/raw/order_payments/"
+          file_format: "(type = parquet)"
+          auto_refresh: true
         columns:
           - name: _airbyte_emitted_at
             data_type: timestamp
@@ -103,6 +104,8 @@ sources:
         description: "Customer satisfaction feedback data"
         external:
           location: "{{ '@my_s3_external_dev_stage' if target.name != 'prod' else '@my_s3_external_stage' }}/raw/order_reviews/"
+          file_format: "(type = parquet)"
+          auto_refresh: true
         columns:
           - name: _airbyte_emitted_at
             data_type: timestamp
@@ -133,6 +136,8 @@ sources:
         description: "Customer demographics and geographical mapping info"
         external:
           location: "{{ '@my_s3_external_dev_stage' if target.name != 'prod' else '@my_s3_external_stage' }}/raw/customers/"
+          file_format: "(type = parquet)"
+          auto_refresh: true
         columns:
           - name: _airbyte_emitted_at
             data_type: timestamp
@@ -157,6 +162,8 @@ sources:
         description: "Product catalog meta-data including dimensions"
         external:
           location: "{{ '@my_s3_external_dev_stage' if target.name != 'prod' else '@my_s3_external_stage' }}/raw/products/"
+          file_format: "(type = parquet)"
+          auto_refresh: true
         columns:
           - name: _airbyte_emitted_at
             data_type: timestamp
@@ -193,6 +200,8 @@ sources:
         description: "Merchant/Seller demographic locations"
         external:
           location: "{{ '@my_s3_external_dev_stage' if target.name != 'prod' else '@my_s3_external_stage' }}/raw/sellers/"
+          file_format: "(type = parquet)"
+          auto_refresh: true
         columns:
           - name: _airbyte_emitted_at
             data_type: timestamp
@@ -214,6 +223,8 @@ sources:
         description: "Brazilian zip codes with latitude/longitude coordinates"
         external:
           location: "{{ '@my_s3_external_dev_stage' if target.name != 'prod' else '@my_s3_external_stage' }}/raw/geolocation/"
+          file_format: "(type = parquet)"
+          auto_refresh: true
         columns:
           - name: _airbyte_emitted_at
             data_type: timestamp
@@ -238,6 +249,8 @@ sources:
         description: "Mapping of Portuguese category names to English"
         external:
           location: "{{ '@my_s3_external_dev_stage' if target.name != 'prod' else '@my_s3_external_stage' }}/raw/product_category_name_translation/"
+          file_format: "(type = parquet)"
+          auto_refresh: true
         columns:
           - name: _airbyte_emitted_at
             data_type: timestamp
