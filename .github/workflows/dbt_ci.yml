@@ -1,5 +1,4 @@
 name: dbt CI
-
 on:
   pull_request:
     branches: [main]
@@ -16,7 +15,7 @@ jobs:
   dbt-build:
     runs-on: ubuntu-latest
     env:
-      DBT_PROFILES_DIR: ./
+      DBT_PROFILES_DIR: ${{ github.workspace }}
     steps:
       - name: Checkout PR branch
         uses: actions/checkout@v4
@@ -31,8 +30,7 @@ jobs:
 
       - name: Write profiles.yml from GitHub Secrets
         run: |
-          mkdir -p ./
-          cat > ./profiles.yml <<EOF
+          cat > ${{ github.workspace }}/profiles.yml <<EOF
           olist_ecommerce:
             target: ci
             outputs:
@@ -49,17 +47,17 @@ jobs:
           EOF
 
       - name: dbt deps
+        working-directory: olist_ecommerce
         run: dbt deps
 
       - name: dbt build (run + test)
+        working-directory: olist_ecommerce
         run: dbt build --target ci
 
       - name: dbt docs generate (compile check)
+        working-directory: olist_ecommerce
         run: dbt docs generate --target ci
 
-      # Each PR builds into its own CI_PR_<number> schema (see schema above)
-      # so concurrent PRs don't clobber each other. Clean it up after the
-      # job finishes either way, pass or fail.
       - name: Drop CI schema
         if: always()
         run: |
