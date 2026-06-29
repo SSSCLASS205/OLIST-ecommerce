@@ -74,10 +74,6 @@ tables_to_generate = {
     "product_category_name_translation": mock_category_translation
 }
 
-# ==========================================
-# 3. Generator & Uploader Functions
-# ==========================================
-
 def upload_to_s3(local_file, bucket, s3_key):
     """Uploads a file to an S3 bucket"""
     try:
@@ -90,29 +86,24 @@ def write_and_upload_airbyte_parquet(table_name, data_list):
     """Writes data to a Parquet file in Airbyte format and uploads to S3"""
     filename = f"raw_airbyte_{table_name}.parquet"
     
-    # 1. Create list of records with Airbyte metadata
     records = []
     for row in data_list:
         ab_id = str(uuid.uuid4())
         emitted_at = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S.%f')[:-3] + '+00:00'
-        airbyte_data_json = json.dumps(row)
         
         records.append({
             "_airbyte_ab_id": ab_id,
             "_airbyte_emitted_at": emitted_at,
-            "_airbyte_data": airbyte_data_json
+            "_airbyte_data": row
         })
     
-    # 2. Convert to DataFrame and write to Parquet
     df = pd.DataFrame(records)
     df.to_parquet(filename, index=False, engine='pyarrow')
-    print(f"✅ Generated local file: {filename} ({len(data_list)} records)")
+    print(f"Generated local file: {filename} ({len(data_list)} records)")
     
-    # 3. Upload to S3
     s3_key = f"{S3_PREFIX}{table_name}/{filename}"
     upload_to_s3(filename, S3_BUCKET_NAME, s3_key)
     
-    # 4. Clean up the local file to keep your directory tidy
     os.remove(filename)
 
 
