@@ -48,7 +48,7 @@ jobs:
       - name: dbt deps
         working-directory: olist_ecommerce
         run: dbt deps
-        
+
       - name: Stage External Sources
         working-directory: olist_ecommerce
         run: dbt run-operation stage_external_sources --target ci
@@ -60,31 +60,3 @@ jobs:
       - name: dbt docs generate (compile check)
         working-directory: olist_ecommerce
         run: dbt docs generate --target ci
-
-      - name: Drop CI schema
-        if: always()
-        env:
-          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_CI_ACCOUNT }}
-          SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_CI_USER }}
-          SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_CI_PASSWORD }}
-          SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_CI_ROLE }}
-          SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_CI_WAREHOUSE }}
-          SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_CI_DATABASE }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          pip install snowflake-connector-python
-          python -c "
-          import snowflake.connector, os
-          conn = snowflake.connector.connect(
-            account=os.environ['SNOWFLAKE_ACCOUNT'],
-            user=os.environ['SNOWFLAKE_USER'],
-            password=os.environ['SNOWFLAKE_PASSWORD'],
-            role=os.environ['SNOWFLAKE_ROLE'],
-            warehouse=os.environ['SNOWFLAKE_WAREHOUSE'],
-          )
-          schemes = ['BRONZE','GOLD','SILVER']
-          for schema in schemes:
-            conn.cursor().execute(
-              'DROP SCHEMA IF EXISTS ' + os.environ['SNOWFLAKE_DATABASE'] + '.CI_PR_' + os.environ['PR_NUMBER'] + '_' + schema
-            )
-          "
