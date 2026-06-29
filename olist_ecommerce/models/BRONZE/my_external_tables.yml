@@ -10,7 +10,7 @@ sources:
       - name: orders_bronze
         description: "Core order lifecycle and status tracking"
         external:
-          location: "{{ '@my_s3_external_dev_stage' if target.name != 'prod' else '@my_s3_external_stage' }}/raw/orders/"
+          location: "{{ '@PUBLIC.my_s3_external_dev_stage' if target.name != 'prod' else '@PUBLIC.my_s3_external_stage' }}/raw/orders/"
           file_format: "(type = parquet)"
           auto_refresh: true
         columns:
@@ -45,7 +45,7 @@ sources:
       - name: order_items_bronze
         description: "Line-item details for items contained within an order"
         external:
-          location: "{{ '@my_s3_external_dev_stage' if target.name != 'prod' else '@my_s3_external_stage' }}/raw/order_items/"
+          location: "{{ '@PUBLIC.my_s3_external_dev_stage' if target.name != 'prod' else '@PUBLIC.my_s3_external_stage' }}/raw/order_items/"
           file_format: "(type = parquet)"
           auto_refresh: true
         columns:
@@ -77,7 +77,7 @@ sources:
       - name: order_payments_bronze
         description: "Payment details split by payment option"
         external:
-          location: "{{ '@my_s3_external_dev_stage' if target.name != 'prod' else '@my_s3_external_stage' }}/raw/order_payments/"
+          location: "{{ '@PUBLIC.my_s3_external_dev_stage' if target.name != 'prod' else '@PUBLIC.my_s3_external_stage' }}/raw/order_payments/"
           file_format: "(type = parquet)"
           auto_refresh: true
         columns:
@@ -103,7 +103,7 @@ sources:
       - name: order_reviews_bronze
         description: "Customer satisfaction feedback data"
         external:
-          location: "{{ '@my_s3_external_dev_stage' if target.name != 'prod' else '@my_s3_external_stage' }}/raw/order_reviews/"
+          location: "{{ '@PUBLIC.my_s3_external_dev_stage' if target.name != 'prod' else '@PUBLIC.my_s3_external_stage' }}/raw/order_reviews/"
           file_format: "(type = parquet)"
           auto_refresh: true
         columns:
@@ -135,7 +135,7 @@ sources:
       - name: customers_bronze
         description: "Customer demographics and geographical mapping info"
         external:
-          location: "{{ '@my_s3_external_dev_stage' if target.name != 'prod' else '@my_s3_external_stage' }}/raw/customers/"
+          location: "{{ '@PUBLIC.my_s3_external_dev_stage' if target.name != 'prod' else '@PUBLIC.my_s3_external_stage' }}/raw/customers/"
           file_format: "(type = parquet)"
           auto_refresh: true
         columns:
@@ -161,7 +161,7 @@ sources:
       - name: products_bronze
         description: "Product catalog meta-data including dimensions"
         external:
-          location: "{{ '@my_s3_external_dev_stage' if target.name != 'prod' else '@my_s3_external_stage' }}/raw/products/"
+          location: "{{ '@PUBLIC.my_s3_external_dev_stage' if target.name != 'prod' else '@PUBLIC.my_s3_external_stage' }}/raw/products/"
           file_format: "(type = parquet)"
           auto_refresh: true
         columns:
@@ -199,7 +199,7 @@ sources:
       - name: sellers_bronze
         description: "Merchant/Seller demographic locations"
         external:
-          location: "{{ '@my_s3_external_dev_stage' if target.name != 'prod' else '@my_s3_external_stage' }}/raw/sellers/"
+          location: "{{ '@PUBLIC.my_s3_external_dev_stage' if target.name != 'prod' else '@PUBLIC.my_s3_external_stage' }}/raw/sellers/"
           file_format: "(type = parquet)"
           auto_refresh: true
         columns:
@@ -222,7 +222,7 @@ sources:
       - name: geolocation_bronze
         description: "Brazilian zip codes with latitude/longitude coordinates"
         external:
-          location: "{{ '@my_s3_external_dev_stage' if target.name != 'prod' else '@my_s3_external_stage' }}/raw/geolocation/"
+          location: "{{ '@PUBLIC.my_s3_external_dev_stage' if target.name != 'prod' else '@PUBLIC.my_s3_external_stage' }}/raw/geolocation/"
           file_format: "(type = parquet)"
           auto_refresh: true
         columns:
@@ -248,7 +248,7 @@ sources:
       - name: product_category_name_translation_bronze
         description: "Mapping of Portuguese category names to English"
         external:
-          location: "{{ '@my_s3_external_dev_stage' if target.name != 'prod' else '@my_s3_external_stage' }}/raw/product_category_name_translation/"
+          location: "{{ '@PUBLIC.my_s3_external_dev_stage' if target.name != 'prod' else '@PUBLIC.my_s3_external_stage' }}/raw/product_category_name_translation/"
           file_format: "(type = parquet)"
           auto_refresh: true
         columns:

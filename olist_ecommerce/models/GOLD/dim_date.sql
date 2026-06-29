@@ -4,7 +4,7 @@
 
 
 with raw_numbers as (
-    SELECT ROW_NUMBER() over(order by SEQ4) -1 AS row_num
+    SELECT ROW_NUMBER() over() -1 AS row_num
     FROM TABLE(GENERATOR(ROWCOUNT => 7305))
 ),
 date_spine AS(

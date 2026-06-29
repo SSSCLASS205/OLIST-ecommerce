@@ -76,8 +76,9 @@ models:
       - name: price
         tests:
           - dbt_utils.accepted_range:
-              min_value: 0
-              inclusive: true
+              arguments:
+                min_value: 0
+                inclusive: true
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -98,8 +99,9 @@ models:
       - name: payment_value
         tests:
           - dbt_utils.accepted_range:
-              min_value: 0
-              inclusive: true
+              arguments:
+                min_value: 0
+                inclusive: true
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -118,4 +120,5 @@ models:
       - name: review_score
         tests:
           - accepted_values:
-              values: [1, 2, 3, 4, 5]
+              arguments:
+                values: [1, 2, 3, 4, 5]
