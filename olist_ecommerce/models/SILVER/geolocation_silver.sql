@@ -1,11 +1,18 @@
 {{
     config(
-        materialized="table"    
+        materialized='table'    
     )
 }}
 
 WITH bronze_geolocation AS (
-    SELECT * FROM {{ source('BRONZE', 'geolocation_bronze') }}
+    SELECT 
+        geolocation_zip_code_prefix,
+        geolocation_lat,
+        geolocation_lng,
+        geolocation_city,
+        geolocation_state,
+        _airbyte_emitted_at
+    FROM {{ source('BRONZE', 'geolocation_bronze') }}
 ),
 
 official_cities AS (
