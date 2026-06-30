@@ -1,3 +1,7 @@
+{{ 
+    config(materialized='table')
+}}
+
 SELECT 
     {{ dbt_utils.generate_surrogate_key(['customer_id', 'dbt_valid_from']) }} AS customer_key,
     customer_unique_id,

@@ -1,3 +1,7 @@
+{{ 
+    config(materialized='table')
+}}
+
 SELECT 
     {{ dbt_utils.generate_surrogate_key(['seller_id', 'dbt_valid_from']) }} AS customer_pk,
     seller_id,

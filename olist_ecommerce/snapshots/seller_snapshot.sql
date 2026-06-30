@@ -4,7 +4,7 @@
 {{
     config(
         target_database='OLIST_WAREHOUSE',
-        target_schema= target.schema ~ '_SILVER' if target.name != 'prod' else 'SILVER',
+        target_schema= (target.schema ~ '_SILVER') if target.name != 'prod' else 'SILVER',
         unique_key='seller_id',
         strategy='check',
         check_cols=['seller_id', 'seller_state', 'seller_zip_code_prefix']
