@@ -1,5 +1,8 @@
 {{ 
-    config(materialized='table')
+    config(
+        materialized='incremental',
+        unique_key='customer_key'
+    )
 }}
 
 SELECT 
@@ -14,3 +17,8 @@ SELECT
         ELSE FALSE
     END as is_current
 FROM {{ ref('customers_snapshot') }}
+
+{% if is_incremental() %}
+WHERE dbt_valid_from > (SELECT MAX(dbt_valid_from) FROM {{ this }})
+   OR dbt_valid_to   > (SELECT COALESCE(MAX(dbt_valid_from), '1900-01-01'::timestamp) FROM {{ this }})
+{% endif %}
