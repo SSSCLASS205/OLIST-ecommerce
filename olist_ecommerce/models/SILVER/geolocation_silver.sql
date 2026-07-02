@@ -13,6 +13,7 @@ WITH bronze_geolocation AS (
         geolocation_state,
         _airbyte_emitted_at
     FROM {{ source('BRONZE', 'geolocation_bronze') }}
+    WHERE LENGTH(TRIM(geolocation_zip_code_prefix)) > 0
 ),
 
 official_cities AS (

@@ -4,13 +4,15 @@ from botocore.exceptions import ClientError
 
 
 LOCAL_FOLDER_PATH = "/home/sssclass/Desktop/project/olist_project/dbt_project/dags"
-BUCKET_NAME = 'REPLACE_ME'
+BUCKET_NAME = 'olist-mwaa-data-724769809986'
 S3_PREFIX = 'dags'
 
 
 def upload(local_folder, files_list):
     client = boto3.client('s3')
 
+    print('uploading ....')
+    
     for file_name in files_list:
         local_file_path = os.path.join(local_folder, file_name)
         
