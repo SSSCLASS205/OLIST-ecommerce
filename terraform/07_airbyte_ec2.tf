@@ -4,8 +4,13 @@ data "aws_ami" "amazon_linux" {
   most_recent = true
   owners      = ["amazon"]
   filter {
+    # "al2023-ami-*-x86_64" also matches "al2023-ami-minimal-*-x86_64", which
+    # does NOT ship amazon-ssm-agent preinstalled — that caused this instance
+    # to never register with SSM. Pinning to the "2023." version prefix
+    # excludes the minimal variant, since its name inserts "minimal-" right
+    # after "al2023-ami-".
     name   = "name"
-    values = ["al2023-ami-*-x86_64"]
+    values = ["al2023-ami-2023.*-x86_64"]
   }
 }
 
@@ -39,7 +44,12 @@ resource "aws_iam_role_policy" "airbyte_policy" {
         Effect   = "Allow"
         Action   = ["secretsmanager:GetSecretValue"]
         Resource = [aws_secretsmanager_secret.rds_creds.arn]
-      }
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["secretsmanager:PutSecretValue"]
+        Resource = aws_secretsmanager_secret.airbyte_admin_creds.arn
+     }
     ]
   })
 }
@@ -65,6 +75,12 @@ resource "aws_launch_template" "airbyte_asg_lt" {
   instance_type = "t3.large"
   key_name      = var.key_pair_name
 
+  metadata_options {
+    http_endpoint               = "enabled"
+    http_tokens                 = "required"
+    http_put_response_hop_limit = 3
+  }
+  
   iam_instance_profile {
     name = aws_iam_instance_profile.airbyte_profile.name
   }
@@ -73,56 +89,133 @@ resource "aws_launch_template" "airbyte_asg_lt" {
     security_groups = [aws_security_group.airbyte_sg.id]
   }
 
+  # Default AMI root volume (8-20GB depending on the AMI) isn't enough headroom
+  # for a kind cluster pulling ~10 Airbyte platform images (server, worker,
+  # workload-launcher, temporal, etc.) plus Docker's own layer cache. Ran out
+  # of disk mid-pull with the default size -> ImagePullBackOff / "no space
+  # left on device" from containerd.
+  block_device_mappings {
+    device_name = "/dev/xvda"
+    ebs {
+      volume_size           = 50
+      volume_type            = "gp3"
+      delete_on_termination = true
+    }
+  }
+
   user_data = base64encode(<<-EOF
-    #!/bin/bash
-    yum update -y
-    yum install -y docker git jq awscli postgresql15
-    systemctl enable --now docker
+#!/bin/bash
+set -euo pipefail
+exec > >(tee /var/log/airbyte-init.log | logger -t airbyte-init) 2>&1
 
-    mkdir -p /opt/airbyte
-    cd /opt/airbyte
+yum update -y
+yum install -y docker git jq awscli postgresql15
+systemctl enable --now docker
 
-    # Creds + endpoint already live in the rds_creds secret (05_secrets.tf)
-    SECRET_JSON=$(aws secretsmanager get-secret-value \
-      --secret-id "${aws_secretsmanager_secret.rds_creds.id}" \
-      --region "${data.aws_region.current.name}" \
-      --query SecretString --output text)
+# abctl runs as ec2-user (see note below) but docker is only installed/started
+# as root, and ec2-user is never added to the docker group — so the very
+# first `docker` call abctl makes fails with a socket permission error.
+# Add the group membership, then wait for the socket to actually exist
+# before handing off, since `systemctl enable --now` can return slightly
+# before dockerd finishes creating /var/run/docker.sock.
+usermod -aG docker ec2-user
 
-    DB_USER=$(echo "$SECRET_JSON" | jq -r .username)
-    DB_PASS=$(echo "$SECRET_JSON" | jq -r .password)
-    DB_HOST=$(echo "$SECRET_JSON" | jq -r .host)
-    DB_PORT=$(echo "$SECRET_JSON" | jq -r .port)
+for i in $(seq 1 15); do
+  [ -S /var/run/docker.sock ] && break
+  echo "Waiting for docker socket... ($i/15)"
+  sleep 2
+done
+[ -S /var/run/docker.sock ] || { echo "docker socket never appeared"; exit 1; }
 
-    # olist_oltp's default db is "olist" (the warehouse OLTP data) — give
-    # Airbyte its own database on the same Multi-AZ instance so config/
-    # metadata doesn't mix with app data.
-    PGPASSWORD="$DB_PASS" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d postgres \
-      -tc "SELECT 1 FROM pg_database WHERE datname = 'airbyte'" | grep -q 1 || \
-      PGPASSWORD="$DB_PASS" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d postgres \
-      -c "CREATE DATABASE airbyte"
+# Install abctl — the current official Airbyte CLI (replaces run-ab-platform.sh)
+curl -LsfS https://get.airbyte.com | bash -
 
-    curl -L https://raw.githubusercontent.com/airbytehq/airbyte-platform/main/run-ab-platform.sh -o run-ab-platform.sh
-    chmod +x run-ab-platform.sh
+mkdir -p /opt/airbyte
+cd /opt/airbyte
 
-    # Externalize Airbyte's config DB to RDS (Multi-AZ) and its logs/state/
-    # workspace output to S3, so every ASG node shares the same backing
-    # stores instead of each holding its own local Postgres + local disk.
-    cat > .env <<EOT
-    DATABASE_USER=$DB_USER
-    DATABASE_PASSWORD=$DB_PASS
-    DATABASE_HOST=$DB_HOST
-    DATABASE_PORT=$DB_PORT
-    DATABASE_DB=airbyte
+# Creds + endpoint already live in the rds_creds secret (05_secrets.tf)
+SECRET_JSON=$(aws secretsmanager get-secret-value \
+  --secret-id "${aws_secretsmanager_secret.rds_creds.id}" \
+  --region "${data.aws_region.current.name}" \
+  --query SecretString --output text)
 
-    STORAGE_TYPE=S3
-    STORAGE_BUCKET_LOG=${aws_s3_bucket.mwaa_data.bucket}
-    STORAGE_BUCKET_STATE=${aws_s3_bucket.mwaa_data.bucket}
-    STORAGE_BUCKET_WORKSPACE_OUTPUT=${aws_s3_bucket.mwaa_data.bucket}
-    AWS_DEFAULT_REGION=${data.aws_region.current.name}
-    EOT
+DB_USER=$(echo "$SECRET_JSON" | jq -r .username)
+DB_PASS=$(echo "$SECRET_JSON" | jq -r .password)
+DB_HOST=$(echo "$SECRET_JSON" | jq -r .host)
+DB_PORT=$(echo "$SECRET_JSON" | jq -r .port)
 
-    ./run-ab-platform.sh -b
-  EOF
+# olist_oltp's default db is "olist" (the warehouse OLTP data) — give
+# Airbyte its own database on the same Multi-AZ instance so config/
+# metadata doesn't mix with app data.
+PGPASSWORD="$DB_PASS" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d postgres \
+  -tc "SELECT 1 FROM pg_database WHERE datname = 'airbyte'" | grep -q 1 || \
+  PGPASSWORD="$DB_PASS" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d postgres \
+  -c "CREATE DATABASE airbyte"
+
+# Write abctl values.yaml:
+#   - Disable the bundled Postgres pod; point at our Multi-AZ RDS instead.
+#   - Externalize logs/state/workspace output to S3 so every ASG node shares
+#     the same backing stores rather than each holding its own local disk.
+cat > /opt/airbyte/values.yaml <<EOT
+postgresql:
+  enabled: false
+
+global:
+  database:
+    type: "external"
+    host: "$DB_HOST"
+    port: "$DB_PORT"
+    # NOTE: Helm chart V2 (used by abctl >=0.30) renamed this key from
+    # "database" to "name". The old key is silently ignored rather than
+    # erroring, so the chart falls back to its default db name "db-airbyte"
+    # which doesn't exist on RDS -> bootloader pod fails pre-install.
+    name: "airbyte"
+    user: "$DB_USER"
+    password: "$DB_PASS"
+
+  storage:
+    type: "s3"
+    # NOTE: chart V2 nests bucket names under a separate "bucket:" block
+    # using the keys log/state/workloadOutput. The old V1-style flat keys
+    # (logBucketName/stateBucketName/workspaceBucketName) directly under
+    # "s3:" aren't recognized -> the whole storage/S3 client bean fails to
+    # build, which surfaces as "region must not be blank or empty" even
+    # though region is set, because the malformed block breaks the client
+    # construction before region is ever read correctly.
+    bucket:
+      log: "${aws_s3_bucket.mwaa_data.bucket}"
+      state: "${aws_s3_bucket.mwaa_data.bucket}"
+      workloadOutput: "${aws_s3_bucket.mwaa_data.bucket}"
+    s3:
+      region: "${data.aws_region.current.name}"
+      # We're relying on the EC2 instance profile (aws_iam_instance_profile.airbyte_profile)
+      # for S3 permissions — no access keys exist anywhere in this setup.
+      authenticationType: "instanceProfile"
+EOT
+
+# abctl stores its kubeconfig under ~/.airbyte/abctl/ so it must run as a
+# real user with a home directory, not root. We use `sg docker -c` (not
+# just `sudo -u ec2-user`) to force the ec2-user shell to pick up the
+# docker group we just added it to, rather than relying on sudo re-reading
+# group membership, which isn't guaranteed on every distro/PAM config.
+# --insecure-cookies is required for plain-HTTP access on the private subnet;
+# without it abctl refuses to set the session cookie on login.
+sudo -u ec2-user sg docker -c "/usr/local/bin/abctl local install \
+  --values /opt/airbyte/values.yaml \
+  --port 8000 \
+  --insecure-cookies"
+
+CREDS_OUTPUT=$(sudo -u ec2-user sg docker -c "/usr/local/bin/abctl local credentials" 2>&1)
+CREDS_OUTPUT=$(sudo -u ec2-user abctl local credentials --email sssclass205@gmail.com)
+ADMIN_EMAIL=$(echo "$CREDS_OUTPUT" | grep -oP '(?<=Email: ).*')
+ADMIN_PASS=$(echo "$CREDS_OUTPUT" | grep -oP '(?<=Password: ).*')
+
+aws secretsmanager put-secret-value \
+  --secret-id "${aws_secretsmanager_secret.airbyte_admin_creds.id}" \
+  --region "${data.aws_region.current.name}" \
+  --secret-string "$(jq -n --arg e "$ADMIN_EMAIL" --arg p "$ADMIN_PASS" '{email:$e, password:$p}')"
+
+EOF
   )
 }
 
@@ -137,9 +230,30 @@ resource "aws_autoscaling_group" "airbyte_asg" {
     version = "$Latest"
   }
 
+  instance_refresh {
+    strategy = "Rolling"
+    preferences {
+      min_healthy_percentage = 0  
+    }
+  }
+
   tag {
     key                 = "Name"
     value               = "${var.project}-airbyte-asg"
     propagate_at_launch = true
   }
+}
+data "aws_instances" "airbyte_asg" {
+  filter {
+    name   = "tag:aws:autoscaling:groupName"
+    values = [aws_autoscaling_group.airbyte_asg.name]
+  }
+
+  filter {
+    name   = "instance-state-name"
+    values = ["running"]
+  }
+
+  # Ensure ASG is created before querying instances
+  depends_on = [aws_autoscaling_group.airbyte_asg]
 }

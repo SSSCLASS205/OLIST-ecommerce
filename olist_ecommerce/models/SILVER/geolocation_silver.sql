@@ -1,11 +1,19 @@
 {{
     config(
-        materialized="table"    
+        materialized='table'    
     )
 }}
 
 WITH bronze_geolocation AS (
-    SELECT * FROM {{ source('BRONZE', 'geolocation_bronze') }}
+    SELECT 
+        geolocation_zip_code_prefix,
+        geolocation_lat,
+        geolocation_lng,
+        geolocation_city,
+        geolocation_state,
+        _airbyte_emitted_at
+    FROM {{ source('BRONZE', 'geolocation_bronze') }}
+    WHERE LENGTH(TRIM(geolocation_zip_code_prefix)) > 0
 ),
 
 official_cities AS (
@@ -15,15 +23,21 @@ official_cities AS (
 city_state_normalization AS (
     SELECT 
         a.geolocation_zip_code_prefix,
-        LOWER(COLLATE(b.City, 'ai-ci')) AS standardized_city,
+        LOWER(b.City) AS standardized_city, 
         UPPER(b.UF) AS standardized_state_code,
         b.State AS full_state_name,
         a.geolocation_lat,
-        a.geolocation_lng
+        a.geolocation_lng,
+        JAROWINKLER_SIMILARITY(LOWER(a.geolocation_city), LOWER(b.City)) AS match_score
     FROM bronze_geolocation a 
     INNER JOIN official_cities b 
         ON UPPER(a.geolocation_state) = UPPER(b.UF)
-        AND JAROWINKLER_SIMILARITY(LOWER(COLLATE(a.geolocation_city, 'ai-ci')), LOWER(COLLATE(b.City, 'ai-ci'))) >= 80
+        AND JAROWINKLER_SIMILARITY(LOWER(a.geolocation_city), LOWER(b.City)) >= 80
+        
+    QUALIFY ROW_NUMBER() OVER (
+        PARTITION BY a.geolocation_zip_code_prefix, a.geolocation_lat, a.geolocation_lng 
+        ORDER BY match_score DESC
+    ) = 1
 ),
 
 aggregated_data AS (
@@ -43,4 +57,4 @@ aggregated_data AS (
         full_state_name
 )
 
-SELECT * FROM aggregated_data;
+SELECT * FROM aggregated_data

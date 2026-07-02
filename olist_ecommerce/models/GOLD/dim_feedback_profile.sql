@@ -1,7 +1,7 @@
 {{ config(
     materialized='incremental',
-    unique_key=['review_id','order_id']
-) }}
+    unique_key='feedback_id')
+}}
 
 WITH silver_order_reviews AS (
     SELECT 

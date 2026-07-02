@@ -40,4 +40,4 @@ SELECT
     review_creation_date,
     review_answer_timestamp,
     _airbyte_emitted_at
-FROM deduped_reviews;
+FROM deduped_reviews

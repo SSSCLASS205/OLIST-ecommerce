@@ -15,7 +15,7 @@ silver_orders AS (
         order_id,
         customer_unique_id,
         order_status,
-        CAST(order_delivered_carrier_date as DATE) as payment_date
+        CAST(order_purchase_timestamp as DATE) as payment_date
     FROM {{ ref('orders_silver') }}
 ),
 
@@ -43,4 +43,4 @@ SELECT
     payment_installments,
     payment_value,
     _airbyte_emitted_at
-FROM joined_data;
+FROM joined_data

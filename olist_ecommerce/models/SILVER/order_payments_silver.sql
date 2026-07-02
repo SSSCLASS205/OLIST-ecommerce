@@ -48,4 +48,4 @@ select
     level_of_installment,
     installment_monthly_value,
     _airbyte_emitted_at
-from deduped;
+from deduped

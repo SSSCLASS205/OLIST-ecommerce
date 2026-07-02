@@ -6,6 +6,7 @@ wheels/
 *.egg-info
 .venv/
 venv/
+.env
 
 dbt_project/olist_ecommerce/target/
 dbt_project/olist_ecommerce/dbt_packages/
