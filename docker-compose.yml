@@ -19,7 +19,7 @@ x-airflow-common: &airflow-common
       condition: service_healthy
 
 services:
-  # 1. The Database Airflow uses to keep track of jobs/history
+
   postgres_airflow:
     image: postgres:15
     environment:
@@ -35,7 +35,7 @@ services:
       retries: 5
     restart: always
 
-  # 2. Airflow Initialization (Runs once to set up the DB and admin user)
+
   airflow-init:
     <<: *airflow-common
     command: version
@@ -46,7 +46,7 @@ services:
       _AIRFLOW_WWW_USER_USERNAME: airflow
       _AIRFLOW_WWW_USER_PASSWORD: airflow
 
-  # 3. The Web UI (What you see at localhost:8080)
+
   airflow-webserver:
     <<: *airflow-common
     command: webserver

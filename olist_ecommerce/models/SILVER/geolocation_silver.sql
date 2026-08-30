@@ -1,11 +1,14 @@
 {{
     config(
-        materialized='table'    
+        materialized='incremental',
+        incremental_strategy='merge',
+        unique_key='geolocation_id'
     )
 }}
 
 WITH bronze_geolocation AS (
-    SELECT 
+    SELECT
+        geolocation_id,
         geolocation_zip_code_prefix,
         geolocation_lat,
         geolocation_lng,
@@ -13,7 +16,10 @@ WITH bronze_geolocation AS (
         geolocation_state,
         _airbyte_emitted_at
     FROM {{ source('BRONZE', 'geolocation_bronze') }}
-    WHERE LENGTH(TRIM(geolocation_zip_code_prefix)) > 0
+    WHERE LENGTH(TRIM(geolocation_zip_code_prefix)) > 0 
+    {% if is_incremental() %}
+        AND  _airbyte_emitted_at >= (SELECT MAX(_airbyte_emitted_at) FROM {{this}})
+    {% endif %}
 ),
 
 official_cities AS (
@@ -22,6 +28,7 @@ official_cities AS (
 
 city_state_normalization AS (
     SELECT 
+        a.geolocation_id,
         a.geolocation_zip_code_prefix,
         LOWER(b.City) AS standardized_city, 
         UPPER(b.UF) AS standardized_state_code,
@@ -30,31 +37,15 @@ city_state_normalization AS (
         a.geolocation_lng,
         JAROWINKLER_SIMILARITY(LOWER(a.geolocation_city), LOWER(b.City)) AS match_score
     FROM bronze_geolocation a 
-    INNER JOIN official_cities b 
+    LEFT JOIN official_cities b 
         ON UPPER(a.geolocation_state) = UPPER(b.UF)
         AND JAROWINKLER_SIMILARITY(LOWER(a.geolocation_city), LOWER(b.City)) >= 80
         
     QUALIFY ROW_NUMBER() OVER (
-        PARTITION BY a.geolocation_zip_code_prefix, a.geolocation_lat, a.geolocation_lng 
+        PARTITION BY a.geolocation_id 
         ORDER BY match_score DESC
     ) = 1
-),
-
-aggregated_data AS (
-    SELECT 
-        geolocation_zip_code_prefix,
-        standardized_city,
-        standardized_state_code,
-        full_state_name,
-        ARRAY_AGG(OBJECT_CONSTRUCT('lat', geolocation_lat, 'lng', geolocation_lng)) AS all_coordinates_in_prefix,
-        AVG(geolocation_lat) AS centroid_lat,
-        AVG(geolocation_lng) AS centroid_lng
-    FROM city_state_normalization
-    GROUP BY 
-        geolocation_zip_code_prefix, 
-        standardized_city, 
-        standardized_state_code, 
-        full_state_name
 )
 
-SELECT * FROM aggregated_data
+
+SELECT * FROM city_state_normalization

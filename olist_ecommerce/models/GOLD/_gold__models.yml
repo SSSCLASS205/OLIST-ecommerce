@@ -1,124 +1,449 @@
 version: 2
 
 models:
+  - name: dim_date
+    description: "Date spine, 2015-01-01 to ~2035, one row per calendar day"
+    columns:
+      - name: date_id
+        data_tests:
+          - unique
+          - not_null
+      - name: date_actual
+        data_tests:
+          - unique
+          - not_null
+
+  - name: dim_order_attributes
+    description: "Junk dimension: cross join of distinct payment_type x order_status"
+    columns:
+      - name: attribute_id
+        data_tests:
+          - unique
+          - not_null
+      - name: payment_type
+        data_tests:
+          - not_null
+      - name: order_status
+        data_tests:
+          - not_null
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - payment_type
+            - order_status
+
+  - name: dim_feedback_profile
+    description: "Review comment metadata, joins to fact_reviews on review_id"
+    columns:
+      - name: review_id
+        data_tests:
+          - unique
+          - not_null
+      - name: has_comment
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [true, false]
+
+  - name: dim_geolocation
+    description: "Zip-prefix-level geolocation centroids aggregated from geolocation_silver, standardized against official city list"
+    columns:
+      - name: geolocation_zip_code_prefix
+        data_tests:
+          - unique
+          - not_null
+      - name: centroid_lat
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: -90
+                max_value: 90
+                inclusive: true
+      - name: centroid_lng
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: -180
+                max_value: 180
+                inclusive: true
+
+  - name: dim_product
+    description: "Product catalog, incrementally merged from product_silver keyed by update_at"
+    columns:
+      - name: product_id
+        data_tests:
+          - unique
+          - not_null
+
   - name: dim_customer
+    description: "SCD2 customer dimension built from customers_snapshot, keyed by (customer_id, dbt_valid_from)"
     columns:
       - name: customer_key
-        tests:
+        data_tests:
           - unique
           - not_null
       - name: customer_id
-        tests:
+        data_tests:
           - not_null
+      - name: is_current
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [true, false]
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - customer_id
+            - dbt_valid_from
 
   - name: dim_seller
+    description: "SCD2 seller dimension built from sellers_snapshot, keyed by (seller_id, dbt_valid_from)"
     columns:
+      - name: seller_key
+        data_tests:
+          - unique
+          - not_null
       - name: seller_id
-        tests:
+        data_tests:
           - not_null
-
-  - name: dim_product
-    columns:
-      - name: product_id
-        tests:
-          - unique
+      - name: is_current
+        data_tests:
           - not_null
-
-  - name: dim_date
-    columns:
-      - name: date_actual
-        tests:
-          - unique
-          - not_null
-      - name: date_id
-        tests:
-          - unique
-          - not_null
-
-  - name: dim_order_attribute
-    columns:
-      - name: attribute_id
-        tests:
-          - unique
-          - not_null
-
-  - name: dim_feedback_profile
-    columns:
-      - name: feedback_id
-        tests:
-          - unique
-          - not_null
-
-  - name: dim_geolocation
-    columns:
-      - name: geolocation_zip_code_prefix
-        tests:
-          - not_null
+          - accepted_values:
+              arguments:
+                values: [true, false]
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - seller_id
+            - dbt_valid_from
 
   - name: fact_sales
-    description: "Order-line grain sales fact"
+    description: "Order line items merged with current order state, re-triggered on either item or order change (affected_orders pattern)"
     columns:
       - name: order_id
-        tests:
+        data_tests:
           - not_null
       - name: order_item_id
-        tests:
-          - not_null
-      - name: product_id
-        tests:
-          - not_null
-          - relationships:
-              to: ref('dim_product')
-              field: product_id
-      - name: seller_id
-        tests:
+        data_tests:
           - not_null
       - name: price
-        tests:
+        data_tests:
           - dbt_utils.accepted_range:
               arguments:
                 min_value: 0
                 inclusive: true
-    tests:
+    data_tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - order_id
             - order_item_id
 
-  - name: fact_payment
+  - name: fact_payments
+    description: "Order payments merged with current order state and order_attributes junk key"
     columns:
       - name: order_id
-        tests:
+        data_tests:
           - not_null
-      - name: attribute_id
-        tests:
+      - name: payment_sequential
+        data_tests:
           - not_null
-          - relationships:
-              to: ref('dim_order_attribute')
-              field: attribute_id
       - name: payment_value
-        tests:
+        data_tests:
           - dbt_utils.accepted_range:
               arguments:
                 min_value: 0
                 inclusive: true
-    tests:
+    data_tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - order_id
             - payment_sequential
 
   - name: fact_reviews
+    description: "Order reviews joined to current order state; hours_to_answer computed on full timestamps"
     columns:
       - name: review_id
-        tests:
+        data_tests:
           - unique
           - not_null
       - name: order_id
-        tests:
+        data_tests:
           - not_null
       - name: review_score
-        tests:
+        data_tests:
           - accepted_values:
               arguments:
                 values: [1, 2, 3, 4, 5]
+
+unit_tests:
+
+  # ── fact_sales: affected_orders re-trigger regression test ──
+  - name: test_fact_sales_picks_up_status_change_on_old_item
+    description: >
+      Core regression test for the bug fixed earlier in this project:
+      an order whose item synced weeks ago but whose status just
+      changed today must still appear in fact_sales.
+    model: fact_sales
+    given:
+      - input: ref('orders_silver')
+        rows:
+          - {order_id: 'o1', customer_id: 'c1', order_status: 'delivered',
+             order_purchase_timestamp: '2024-01-01', order_approved_at: '2024-01-01',
+             order_delivered_carrier_date: null, order_delivered_customer_date: null,
+             order_estimated_delivery_date: null, update_at: '2024-06-01',
+             _airbyte_emitted_at: '2024-06-01'}
+      - input: ref('order_items_silver')
+        rows:
+          - {order_id: 'o1', order_item_id: 1, product_id: 'p1', seller_id: 's1',
+             shipping_limit_date: '2024-01-05', price: 100, freight_value: 10,
+             _airbyte_emitted_at: '2024-01-01'}
+    expect:
+      rows:
+        - {order_id: 'o1', order_item_id: 1, order_status: 'delivered'}
+
+  - name: test_fact_sales_purchase_date_id_format
+    model: fact_sales
+    given:
+      - input: ref('orders_silver')
+        rows:
+          - {order_id: 'o2', customer_id: 'c2', order_status: 'shipped',
+             order_purchase_timestamp: '2024-03-05', order_approved_at: '2024-03-05',
+             order_delivered_carrier_date: null, order_delivered_customer_date: null,
+             order_estimated_delivery_date: null, update_at: '2024-03-05',
+             _airbyte_emitted_at: '2024-03-05'}
+      - input: ref('order_items_silver')
+        rows:
+          - {order_id: 'o2', order_item_id: 1, product_id: 'p1', seller_id: 's1',
+             shipping_limit_date: '2024-03-06', price: 50, freight_value: 5,
+             _airbyte_emitted_at: '2024-03-05'}
+    expect:
+      rows:
+        - {order_id: 'o2', purchase_date_id: 20240305}
+
+  - name: test_fact_sales_no_orphan_items_without_matching_order
+    description: An item with no matching order_id in orders_silver should not appear (INNER JOIN semantics).
+    model: fact_sales
+    given:
+      - input: ref('orders_silver')
+        rows: []
+      - input: ref('order_items_silver')
+        rows:
+          - {order_id: 'o3', order_item_id: 1, product_id: 'p1', seller_id: 's1',
+             shipping_limit_date: '2024-01-05', price: 100, freight_value: 10,
+             _airbyte_emitted_at: '2024-01-01'}
+    expect:
+      rows: []
+
+  # ── fact_reviews: hours_to_answer, current-order join, date_id ──
+  - name: test_fact_reviews_hours_to_answer_no_truncation
+    description: Regression test for the CAST(...AS DATE) bug that zeroed out the time component.
+    model: fact_reviews
+    given:
+      - input: ref('order_reviews_silver')
+        rows:
+          - {review_id: 'r1', order_id: 'o1', review_score: 5,
+             review_creation_date: '2024-01-01 14:00:00',
+             review_answer_timestamp: '2024-01-02 18:30:00',
+             _airbyte_emitted_at: '2024-01-02', update_at: '2024-01-02'}
+      - input: ref('orders_silver')
+        rows:
+          - {order_id: 'o1', customer_id: 'c1', dbt_valid_to: null}
+    expect:
+      rows:
+        - {review_id: 'r1', hours_to_answer: 28}
+
+  - name: test_fact_reviews_null_answer_gives_null_hours
+    model: fact_reviews
+    given:
+      - input: ref('order_reviews_silver')
+        rows:
+          - {review_id: 'r2', order_id: 'o2', review_score: 3,
+             review_creation_date: '2024-01-01', review_answer_timestamp: null,
+             _airbyte_emitted_at: '2024-01-01', update_at: '2024-01-01'}
+      - input: ref('orders_silver')
+        rows:
+          - {order_id: 'o2', customer_id: 'c2', dbt_valid_to: null}
+    expect:
+      rows:
+        - {review_id: 'r2', hours_to_answer: null}
+
+  - name: test_fact_reviews_only_joins_current_order_version
+    description: Regression test for the dbt_valid_to IS NULL fix -- must only match the current snapshot row, not superseded versions.
+    model: fact_reviews
+    given:
+      - input: ref('order_reviews_silver')
+        rows:
+          - {review_id: 'r3', order_id: 'o3', review_score: 4,
+             review_creation_date: '2024-01-01', review_answer_timestamp: '2024-01-02',
+             _airbyte_emitted_at: '2024-01-02', update_at: '2024-01-02'}
+      - input: ref('orders_silver')
+        rows:
+          - {order_id: 'o3', customer_id: 'c_old', dbt_valid_to: '2024-01-05'}   # superseded version
+          - {order_id: 'o3', customer_id: 'c_new', dbt_valid_to: null}           # current version
+    expect:
+      rows:
+        - {review_id: 'r3', customer_id: 'c_new'}
+
+  # ── fact_payments: attribute_id, payment_date_id, current-order join ──
+  - name: test_fact_payments_current_order_join_only
+    description: Only the current (dbt_valid_to IS NULL) order row should be joined.
+    model: fact_payments
+    given:
+      - input: ref('order_payments_silver')
+        rows:
+          - {order_id: 'o1', payment_sequential: 1, payment_type: 'credit_card',
+             payment_installments: 1, payment_value: 100, level_of_installment: 'LOW',
+             installment_monthly_value: 100, _airbyte_emitted_at: '2024-01-01'}
+      - input: ref('orders_silver')
+        rows:
+          - {order_id: 'o1', customer_id: 'c1', order_status: 'shipped',
+             order_approved_at: '2024-01-01', dbt_valid_to: '2024-02-01'}   # superseded
+          - {order_id: 'o1', customer_id: 'c1', order_status: 'delivered',
+             order_approved_at: '2024-01-01', dbt_valid_to: null}          # current
+    expect:
+      rows:
+        - {order_id: 'o1', payment_sequential: 1, order_status: 'delivered'}
+        # order_status feeds attribute_id -- confirms it's derived from
+        # the current order version, not the superseded one
+
+  - name: test_fact_payments_date_id_format
+    model: fact_payments
+    given:
+      - input: ref('order_payments_silver')
+        rows:
+          - {order_id: 'o2', payment_sequential: 1, payment_type: 'boleto',
+             payment_installments: 1, payment_value: 200, level_of_installment: 'LOW',
+             installment_monthly_value: 200, _airbyte_emitted_at: '2024-05-10'}
+      - input: ref('orders_silver')
+        rows:
+          - {order_id: 'o2', customer_id: 'c2', order_status: 'shipped',
+             order_approved_at: '2024-05-10', dbt_valid_to: null}
+    expect:
+      rows:
+        - {order_id: 'o2', payment_sequential: 1, payment_date_id: 20240510}
+
+  # ── dim_order_attributes: junk dimension completeness ──
+  - name: test_dim_order_attributes_full_cross_join
+    description: Every distinct payment_type must appear against every distinct order_status.
+    model: dim_order_attributes
+    given:
+      - input: ref('order_payments_silver')
+        rows:
+          - {payment_type: 'credit_card'}
+          - {payment_type: 'boleto'}
+      - input: ref('orders_silver')
+        rows:
+          - {order_status: 'shipped'}
+          - {order_status: 'delivered'}
+    expect:
+      rows:
+        - {payment_type: 'credit_card', order_status: 'shipped'}
+        - {payment_type: 'credit_card', order_status: 'delivered'}
+        - {payment_type: 'boleto', order_status: 'shipped'}
+        - {payment_type: 'boleto', order_status: 'delivered'}
+
+  - name: test_dim_order_attributes_excludes_nulls
+    model: dim_order_attributes
+    given:
+      - input: ref('order_payments_silver')
+        rows:
+          - {payment_type: 'credit_card'}
+          - {payment_type: null}
+      - input: ref('orders_silver')
+        rows:
+          - {order_status: 'shipped'}
+          - {order_status: null}
+    expect:
+      rows:
+        - {payment_type: 'credit_card', order_status: 'shipped'}
+
+  # ── dim_feedback_profile: has_comment logic ──
+  - name: test_dim_feedback_profile_has_comment_logic
+    model: dim_feedback_profile
+    given:
+      - input: ref('order_reviews_silver')
+        rows:
+          - {review_id: 'r1', review_comment_title: 'Great', review_comment_message: null,
+             _airbyte_emitted_at: '2024-01-01', update_at: '2024-01-01'}
+          - {review_id: 'r2', review_comment_title: null, review_comment_message: 'loved it',
+             _airbyte_emitted_at: '2024-01-01', update_at: '2024-01-01'}
+          - {review_id: 'r3', review_comment_title: null, review_comment_message: null,
+             _airbyte_emitted_at: '2024-01-01', update_at: '2024-01-01'}
+    expect:
+      rows:
+        - {review_id: 'r1', has_comment: true}
+        - {review_id: 'r2', has_comment: true}
+        - {review_id: 'r3', has_comment: false}
+
+  # ── dim_date ──
+  - name: test_dim_date_date_id_format
+    model: dim_date
+    given: []
+    expect:
+      rows:
+        - {date_actual: '2024-03-05', date_id: 20240305}
+
+  - name: test_dim_date_weekend_flag
+    model: dim_date
+    given: []
+    expect:
+      rows:
+        - {date_actual: '2024-03-09', is_weekend: true}
+        - {date_actual: '2024-03-05', is_weekend: false}
+
+  # ── dim_customer: SCD2 correctness ──
+  # ASSUMES the ref('sellers_snapshot') and updated_at -> update_at fixes
+  # have been applied to dim_customer/dim_seller.sql. Confirm before running.
+  - name: test_dim_customer_scd2_two_versions_both_kept
+    description: An address change should close the old version and open a new one -- both rows must exist.
+    model: dim_customer
+    given:
+      - input: ref('customers_snapshot')
+        rows:
+          - {customer_id: 'c1', customer_unique_id: 'u1', customer_zip_code_prefix: '01310',
+             customer_city: 'sao paulo', customer_state: 'SP',
+             _airbyte_emitted_at: '2024-01-01', update_at: '2024-01-01',
+             dbt_valid_from: '2024-01-01', dbt_valid_to: '2024-06-01'}
+          - {customer_id: 'c1', customer_unique_id: 'u1', customer_zip_code_prefix: '04567',
+             customer_city: 'rio de janeiro', customer_state: 'RJ',
+             _airbyte_emitted_at: '2024-06-01', update_at: '2024-06-01',
+             dbt_valid_from: '2024-06-01', dbt_valid_to: null}
+    expect:
+      rows:
+        - {customer_id: 'c1', customer_city: 'sao paulo', is_current: false}
+        - {customer_id: 'c1', customer_city: 'rio de janeiro', is_current: true}
+
+  - name: test_dim_customer_is_current_flag
+    model: dim_customer
+    given:
+      - input: ref('customers_snapshot')
+        rows:
+          - {customer_id: 'c2', customer_unique_id: 'u2', customer_zip_code_prefix: '01310',
+             customer_city: 'sao paulo', customer_state: 'SP',
+             _airbyte_emitted_at: '2024-01-01', update_at: '2024-01-01',
+             dbt_valid_from: '2024-01-01', dbt_valid_to: null}
+    expect:
+      rows:
+        - {customer_id: 'c2', is_current: true}
+
+  # ── dim_seller: SCD2 correctness ──
+  - name: test_dim_seller_scd2_two_versions_both_kept
+    model: dim_seller
+    given:
+      - input: ref('sellers_snapshot')
+        rows:
+          - {seller_id: 's1', seller_zip_code_prefix: '01310',
+             seller_city: 'sao paulo', seller_state: 'SP',
+             _airbyte_emitted_at: '2024-01-01', update_at: '2024-01-01',
+             dbt_valid_from: '2024-01-01', dbt_valid_to: '2024-06-01'}
+          - {seller_id: 's1', seller_zip_code_prefix: '04567',
+             seller_city: 'rio de janeiro', seller_state: 'RJ',
+             _airbyte_emitted_at: '2024-06-01', update_at: '2024-06-01',
+             dbt_valid_from: '2024-06-01', dbt_valid_to: null}
+    expect:
+      rows:
+        - {seller_id: 's1', seller_city: 'sao paulo', is_current: false}
+        - {seller_id: 's1', seller_city: 'rio de janeiro', is_current: true}

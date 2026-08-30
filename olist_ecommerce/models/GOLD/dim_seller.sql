@@ -1,19 +1,56 @@
-{{ 
+{{
     config(
         materialized='incremental',
-        unique_key='customer_pk'
+        incremental_strategy='merge',
+        unique_key='seller_key'
     )
 }}
 
-SELECT 
-    {{ dbt_utils.generate_surrogate_key(['seller_id', 'dbt_valid_from']) }} AS customer_pk,
-    seller_id,
-    seller_zip_code_prefix,
-    dbt_valid_from,
-    COALESCE(dbt_valid_to, '9999-12-31'::timestamp) AS dbt_valid_to
-FROM {{ ref('sellers_snapshot') }}
+WITH changed_sellers AS (
 
-{% if is_incremental() %}
-WHERE dbt_valid_from > (SELECT MAX(dbt_valid_from) FROM {{ this }})
-   OR dbt_valid_to   > (SELECT COALESCE(MAX(dbt_valid_from), '1900-01-01'::timestamp) FROM {{ this }})
-{% endif %}
+    SELECT DISTINCT
+        seller_id
+    FROM {{ ref('sellers_snapshot') }}
+
+    {% if is_incremental() %}
+
+    WHERE _airbyte_emitted_at >= (
+        SELECT COALESCE(
+            MAX(_airbyte_emitted_at),
+            '1900-01-01'::timestamp
+        )
+        FROM {{ this }}
+    )
+
+    {% endif %}
+),
+
+final AS (
+
+    SELECT
+        {{ dbt_utils.generate_surrogate_key(['a.seller_id', 'a.dbt_valid_from']) }} AS seller_key,
+        a.seller_id,
+        a.seller_zip_code_prefix,
+        a.seller_city,
+        a.seller_state,
+        a._airbyte_emitted_at,
+        a.update_at,
+        a.dbt_valid_from,
+        COALESCE(a.dbt_valid_to, '9999-12-31'::timestamp) AS dbt_valid_to,
+        CASE
+            WHEN a.dbt_valid_to IS NULL THEN TRUE
+            ELSE FALSE
+        END AS is_current
+    FROM {{ ref('sellers_snapshot') }} a
+    
+    {% if is_incremental() %}
+
+    INNER JOIN changed_sellers b
+        ON a.seller_id = b.seller_id
+    
+    {% endif %}
+
+)
+
+SELECT *
+FROM final

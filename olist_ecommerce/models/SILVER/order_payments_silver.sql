@@ -1,10 +1,34 @@
 {{ config(
     materialized='incremental',
-    unique_key=['order_id', 'payment_sequential']  
+    incremental_strategy='merge',
+    unique_key=['order_id', 'payment_sequential']
 ) }}
 
-with order_payments_bronze as (
-    select 
+WITH order_payments_bronze AS (
+    SELECT
+        order_id,
+        payment_sequential,
+        payment_type,
+        payment_installments,
+        payment_value,
+        _airbyte_emitted_at
+    FROM {{ source('BRONZE', 'order_payments_bronze') }}
+    {% if is_incremental() %}
+    WHERE _airbyte_emitted_at > (SELECT MAX(_airbyte_emitted_at) FROM {{ this }})
+    {% endif %}
+),
+
+deduped AS (
+    SELECT *
+    FROM order_payments_bronze
+    QUALIFY ROW_NUMBER() OVER (
+        PARTITION BY order_id, payment_sequential
+        ORDER BY _airbyte_emitted_at DESC
+    ) = 1
+),
+
+transformed AS (
+    SELECT
         order_id,
         payment_sequential,
         payment_type,
@@ -12,34 +36,19 @@ with order_payments_bronze as (
         payment_value,
         _airbyte_emitted_at,
         CASE
+            WHEN payment_installments = 0 THEN 'NONE'
             WHEN payment_installments = 1 THEN 'LOW'
             WHEN payment_installments < 4 THEN 'MEDIUM'
             ELSE 'HIGH'
-        end as level_of_installment,
-        CASE 
+        END AS level_of_installment,
+        CASE
             WHEN payment_installments > 0 THEN payment_value / payment_installments
-            ELSE payment_value 
-        END as installment_monthly_value
-    from {{ source('BRONZE', 'order_payments_bronze') }}
-    
-    {% if is_incremental() %}
-        WHERE _airbyte_emitted_at > (select MAX(_airbyte_emitted_at) FROM {{ this }})
-    {% endif %}
-),
+            ELSE payment_value
+        END AS installment_monthly_value
+    FROM deduped
+)
 
-ranked_orders AS (
-    SELECT 
-        *,
-        ROW_NUMBER() OVER(PARTITION BY order_id, payment_sequential ORDER BY _airbyte_emitted_at DESC) as rnk
-    FROM order_payments_bronze
-),
-
-deduped AS (
-    SELECT * FROM ranked_orders
-    WHERE rnk = 1
-)   
-
-select 
+SELECT
     order_id,
     payment_sequential,
     payment_type,
@@ -48,4 +57,4 @@ select
     level_of_installment,
     installment_monthly_value,
     _airbyte_emitted_at
-from deduped
+FROM transformed

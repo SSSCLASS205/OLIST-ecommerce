@@ -1,4 +1,14 @@
-{{
-    config(materialized='table')
-}}
-SELECT * FROM {{ref("product_silver")}}
+{{ config(
+    materialized='incremental',
+    unique_key='product_id',
+    incremental_predicates=[
+        "DBT_INTERNAL_DEST.update_at < DBT_INTERNAL_SOURCE.update_at"
+    ]
+) }}
+
+
+SELECT * 
+FROM {{ref("product_silver")}}
+{%if is_incremental()%}
+    WHERE _airbyte_emitted_at >= (SELECT MAX(_airbyte_emitted_at) FROM {{this}}) 
+{%endif%}

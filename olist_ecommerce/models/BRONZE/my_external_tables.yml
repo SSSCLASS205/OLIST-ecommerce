@@ -2,7 +2,7 @@ version: 2
 
 sources:
   - name: BRONZE 
-    description: "Raw Olist marketplace data synced via Airbyte from RDS to S3 in Parquet format"
+    description: "Raw Olist marketplace data synced via Airbyte from database to S3 in Parquet format"
     database: OLIST_WAREHOUSE          
     schema: "{{ target.schema ~ '_BRONZE' if target.name != 'prod' else 'BRONZE' }}"
     tables:
@@ -40,6 +40,9 @@ sources:
           - name: order_estimated_delivery_date
             data_type: timestamp
             expression: "value:_airbyte_data.order_estimated_delivery_date::timestamp"
+          - name: update_at
+            data_type: timestamp
+            expression: "value:_airbyte_data.update_at::timestamp"
 
       - name: order_items_bronze
         description: "Line-item details for items contained within an order"
@@ -130,6 +133,9 @@ sources:
           - name: review_answer_timestamp
             data_type: timestamp
             expression: "value:_airbyte_data.review_answer_timestamp::timestamp"
+          - name: update_at
+            data_type: timestamp
+            expression: "value:_airbyte_data.update_at::timestamp"
 
       - name: customers_bronze
         description: "Customer demographics and geographical mapping info"
@@ -156,6 +162,9 @@ sources:
           - name: customer_state
             data_type: varchar
             expression: "value:_airbyte_data.customer_state::varchar"
+          - name: update_at
+            data_type: timestamp
+            expression: "value:_airbyte_data.update_at::timestamp"
 
       - name: products_bronze
         description: "Product catalog meta-data including dimensions"
@@ -194,6 +203,9 @@ sources:
           - name: product_width_cm
             data_type: number
             expression: "value:_airbyte_data.product_width_cm::number"
+          - name: update_at
+            data_type: timestamp
+            expression: "value:_airbyte_data.update_at::timestamp"
 
       - name: sellers_bronze
         description: "Merchant/Seller demographic locations"
@@ -217,7 +229,10 @@ sources:
           - name: seller_state
             data_type: varchar
             expression: "value:_airbyte_data.seller_state::varchar"
-
+          - name: update_at
+            data_type: timestamp
+            expression: "value:_airbyte_data.update_at::timestamp"
+            
       - name: geolocation_bronze
         description: "Brazilian zip codes with latitude/longitude coordinates"
         external:
@@ -243,6 +258,10 @@ sources:
           - name: geolocation_state
             data_type: varchar
             expression: "value:_airbyte_data.geolocation_state::varchar"
+          - name: geolocation_id
+            data_type: INTEGER
+            expression: "value:_airbyte_data.geolocation_id::INTEGER"
+
 
       - name: product_category_name_translation_bronze
         description: "Mapping of Portuguese category names to English"

@@ -1,46 +1,54 @@
 {{ config(
     materialized='incremental',
-    unique_key=['order_id', 'payment_sequential']
+    unique_key=['order_id', 'payment_sequential'],
+    incremental_strategy='merge'
 ) }}
 
 WITH silver_order_payments AS (
-    SELECT * FROM {{ ref('order_payments_silver') }}
+    SELECT
+        order_id,
+        payment_sequential,
+        payment_type,
+        payment_installments,
+        payment_value,
+        level_of_installment,
+        installment_monthly_value,
+        _airbyte_emitted_at
+    FROM {{ ref('order_payments_silver') }}
     {% if is_incremental() %}
-        WHERE _airbyte_emitted_at > (SELECT MAX(_airbyte_emitted_at) FROM {{ this }})
+    WHERE _airbyte_emitted_at > (SELECT MAX(_airbyte_emitted_at) FROM {{ this }})
     {% endif %}
 ),
 
-silver_orders AS (
-    SELECT 
-        order_id,
-        customer_unique_id,
-        order_status,
-        CAST(order_purchase_timestamp as DATE) as payment_date
-    FROM {{ ref('orders_silver') }}
-),
-
 joined_data AS (
-    SELECT 
+    SELECT
         a.order_id,
         a.payment_sequential,
-        a.payment_type,
         a.payment_installments,
+        a.payment_type,
         a.payment_value,
-        a._airbyte_emitted_at,
-        b.customer_unique_id,
+        a.level_of_installment,
+        a.installment_monthly_value,
+        b.customer_id,
+        b.order_approved_at,
         b.order_status,
-        b.payment_date
+        a._airbyte_emitted_at
     FROM silver_order_payments a
-    JOIN silver_orders b ON a.order_id = b.order_id 
+    JOIN {{ ref('orders_silver') }} b
+        ON a.order_id = b.order_id
+        AND b.dbt_valid_to IS NULL
 )
 
-SELECT 
+SELECT
     order_id,
     payment_sequential,
-    customer_unique_id,
-    COALESCE(REPLACE(payment_date::VARCHAR, '-', '')::INT, 19000101) as payment_date_id,
-    {{ dbt_utils.generate_surrogate_key(['payment_type', 'order_status']) }} AS attribute_id,
+    customer_id,
     payment_installments,
+    payment_type,
     payment_value,
+    level_of_installment,
+    installment_monthly_value,
+    COALESCE(TO_NUMBER(TO_CHAR(order_approved_at::DATE, 'YYYYMMDD')), 19000101) AS payment_date_id,
+    {{ dbt_utils.generate_surrogate_key(['payment_type', 'order_status']) }} AS attribute_id,
     _airbyte_emitted_at
 FROM joined_data
