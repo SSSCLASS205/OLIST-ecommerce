@@ -142,7 +142,7 @@ models:
             - order_item_id
 
   - name: fact_payments
-    description: "Order payments merged with current order state and order_attributes junk key"
+    description: "Order payments joined to orders_silver (single current row per order_id) and order_attributes junk key"
     columns:
       - name: order_id
         data_tests:
@@ -163,7 +163,7 @@ models:
             - payment_sequential
 
   - name: fact_reviews
-    description: "Order reviews joined to current order state; hours_to_answer computed on full timestamps"
+    description: "Order reviews joined to orders_silver (single current row per order_id); hours_to_answer computed on full timestamps"
     columns:
       - name: review_id
         data_tests:
@@ -246,9 +246,8 @@ unit_tests:
     expect:
       rows: []
 
-  # ── fact_reviews: hours_to_answer, current-order join, date_id ──
+  # ── fact_reviews unit tests ──
   - name: test_fact_reviews_hours_to_answer_no_truncation
-    description: Regression test for the CAST(...AS DATE) bug that zeroed out the time component.
     model: fact_reviews
     overrides:
       macros:
@@ -262,7 +261,7 @@ unit_tests:
              _airbyte_emitted_at: '2024-01-02', update_at: '2024-01-02'}
       - input: ref('orders_silver')
         rows:
-          - {order_id: 'o1', customer_id: 'c1', dbt_valid_to: null}
+          - {order_id: 'o1', customer_id: 'c1'}
     expect:
       rows:
         - {review_id: 'r1', hours_to_answer: 28}
@@ -280,34 +279,14 @@ unit_tests:
              _airbyte_emitted_at: '2024-01-01', update_at: '2024-01-01'}
       - input: ref('orders_silver')
         rows:
-          - {order_id: 'o2', customer_id: 'c2', dbt_valid_to: null}
+          - {order_id: 'o2', customer_id: 'c2'}
     expect:
       rows:
         - {review_id: 'r2', hours_to_answer: null}
 
-  - name: test_fact_reviews_only_joins_current_order_version
-    description: Regression test for the dbt_valid_to IS NULL fix -- must only match the current snapshot row, not superseded versions.
-    model: fact_reviews
-    overrides:
-      macros:
-        is_incremental: false
-    given:
-      - input: ref('order_reviews_silver')
-        rows:
-          - {review_id: 'r3', order_id: 'o3', review_score: 4,
-             review_creation_date: '2024-01-01', review_answer_timestamp: '2024-01-02',
-             _airbyte_emitted_at: '2024-01-02', update_at: '2024-01-02'}
-      - input: ref('orders_silver')
-        rows:
-          - {order_id: 'o3', customer_id: 'c_old', dbt_valid_to: '2024-01-05'}   # superseded version
-          - {order_id: 'o3', customer_id: 'c_new', dbt_valid_to: null}           # current version
-    expect:
-      rows:
-        - {review_id: 'r3', customer_id: 'c_new'}
-
-  # ── fact_payments: attribute_id, payment_date_id, current-order join ──
-  - name: test_fact_payments_current_order_join_only
-    description: Only the current (dbt_valid_to IS NULL) order row should be joined.
+  # ── fact_payments: attribute_id, payment_date_id, join correctness ──
+  - name: test_fact_payments_date_id_format_and_null_fallback
+    description: Verifies YYYYMMDD date_id generation from order_approved_at and fallback value 19000101 when null.
     model: fact_payments
     overrides:
       macros:
@@ -315,22 +294,19 @@ unit_tests:
     given:
       - input: ref('order_payments_silver')
         rows:
-          - {order_id: 'o1', payment_sequential: 1, payment_type: 'credit_card',
-             payment_installments: 1, payment_value: 100, level_of_installment: 'LOW',
-             installment_monthly_value: 100, _airbyte_emitted_at: '2024-01-01'}
+          - {order_id: 'o1', payment_sequential: 1, payment_type: 'credit_card', payment_installments: 1, payment_value: 100, level_of_installment: 'LOW', installment_monthly_value: 100, _airbyte_emitted_at: '2024-05-10'}
+          - {order_id: 'o2', payment_sequential: 1, payment_type: 'boleto', payment_installments: 1, payment_value: 200, level_of_installment: 'LOW', installment_monthly_value: 200, _airbyte_emitted_at: '2024-05-10'}
       - input: ref('orders_silver')
         rows:
-          - {order_id: 'o1', customer_id: 'c1', order_status: 'shipped',
-             order_approved_at: '2024-01-01', dbt_valid_to: '2024-02-01'}   # superseded
-          - {order_id: 'o1', customer_id: 'c1', order_status: 'delivered',
-             order_approved_at: '2024-01-01', dbt_valid_to: null}          # current
+          - {order_id: 'o1', customer_id: 'c1', order_status: 'delivered', order_approved_at: '2024-05-10 10:00:00'}
+          - {order_id: 'o2', customer_id: 'c2', order_status: 'shipped', order_approved_at: null}
     expect:
       rows:
-        - {order_id: 'o1', payment_sequential: 1, order_status: 'delivered'}
-        # order_status feeds attribute_id -- confirms it's derived from
-        # the current order version, not the superseded one
+        - {order_id: 'o1', payment_sequential: 1, payment_date_id: 20240510}
+        - {order_id: 'o2', payment_sequential: 1, payment_date_id: 19000101}
 
-  - name: test_fact_payments_date_id_format
+  - name: test_fact_payments_joins_orders_silver
+    description: Verifies customer_id and order_status fields join correctly from orders_silver.
     model: fact_payments
     overrides:
       macros:
@@ -338,16 +314,28 @@ unit_tests:
     given:
       - input: ref('order_payments_silver')
         rows:
-          - {order_id: 'o2', payment_sequential: 1, payment_type: 'boleto',
-             payment_installments: 1, payment_value: 200, level_of_installment: 'LOW',
-             installment_monthly_value: 200, _airbyte_emitted_at: '2024-05-10'}
+          - {order_id: 'o1', payment_sequential: 1, payment_type: 'credit_card', payment_installments: 2, payment_value: 150, level_of_installment: 'LOW', installment_monthly_value: 75, _airbyte_emitted_at: '2024-01-01'}
       - input: ref('orders_silver')
         rows:
-          - {order_id: 'o2', customer_id: 'c2', order_status: 'shipped',
-             order_approved_at: '2024-05-10', dbt_valid_to: null}
+          - {order_id: 'o1', customer_id: 'c123', order_status: 'delivered', order_approved_at: '2024-01-01'}
     expect:
       rows:
-        - {order_id: 'o2', payment_sequential: 1, payment_date_id: 20240510}
+        - {order_id: 'o1', payment_sequential: 1, customer_id: 'c123'}
+
+  - name: test_fact_payments_no_orphan_payments
+    description: Verifies inner join behavior drops payments without matching order in orders_silver.
+    model: fact_payments
+    overrides:
+      macros:
+        is_incremental: false
+    given:
+      - input: ref('order_payments_silver')
+        rows:
+          - {order_id: 'o99', payment_sequential: 1, payment_type: 'voucher', payment_installments: 1, payment_value: 50, level_of_installment: 'LOW', installment_monthly_value: 50, _airbyte_emitted_at: '2024-01-01'}
+      - input: ref('orders_silver')
+        rows: []
+    expect:
+      rows: []
 
   # ── dim_order_attributes: junk dimension completeness ──
   - name: test_dim_order_attributes_full_cross_join
@@ -411,9 +399,7 @@ unit_tests:
         - {review_id: 'r2', has_comment: true}
         - {review_id: 'r3', has_comment: false}
 
-  # ── dim_customer: SCD2 correctness ──
-  # ASSUMES the ref('sellers_snapshot') and updated_at -> update_at fixes
-  # have been applied to dim_customer/dim_seller.sql. Confirm before running.
+  # ── dim_customer: SCD2 correctness (customers_snapshot IS a real dbt snapshot, dbt_valid_from/to genuinely exist here) ──
   - name: test_dim_customer_scd2_two_versions_both_kept
     description: An address change should close the old version and open a new one -- both rows must exist.
     model: dim_customer
@@ -452,7 +438,7 @@ unit_tests:
       rows:
         - {customer_id: 'c2', is_current: true}
 
-  # ── dim_seller: SCD2 correctness ──
+  # ── dim_seller: SCD2 correctness (sellers_snapshot IS a real dbt snapshot) ──
   - name: test_dim_seller_scd2_two_versions_both_kept
     model: dim_seller
     overrides:

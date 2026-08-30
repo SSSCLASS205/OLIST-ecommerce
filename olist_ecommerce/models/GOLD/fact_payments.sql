@@ -36,7 +36,6 @@ joined_data AS (
     FROM silver_order_payments a
     JOIN {{ ref('orders_silver') }} b
         ON a.order_id = b.order_id
-        AND b.dbt_valid_to IS NULL
 )
 
 SELECT

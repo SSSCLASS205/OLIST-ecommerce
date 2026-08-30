@@ -32,7 +32,6 @@ joined_data AS (
     FROM silver_order_reviews a
     join {{ ref('orders_silver') }} b
         on a.order_id = b.order_id 
-        AND b.dbt_valid_to is NULL
 )
 SELECT 
     review_id,
