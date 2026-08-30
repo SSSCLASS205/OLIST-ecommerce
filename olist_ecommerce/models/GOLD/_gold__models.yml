@@ -141,7 +141,7 @@ models:
             - order_id
             - order_item_id
 
-  - name: fact_payments
+  - name: fact_payment
     description: "Order payments merged with current order state and order_attributes junk key"
     columns:
       - name: order_id
