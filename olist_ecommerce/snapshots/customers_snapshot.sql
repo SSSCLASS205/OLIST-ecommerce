@@ -6,7 +6,7 @@
         target_schema=(target.schema ~ '_SILVER') if target.name != 'prod' else 'SILVER',
         unique_key='customer_id',
         strategy='timestamp',
-        update_at='update_at'
+        updated_at='update_at'
     )
 }}
 
