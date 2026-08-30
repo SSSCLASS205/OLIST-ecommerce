@@ -2,25 +2,32 @@
     config(
         materialized='incremental',
         incremental_strategy='merge',
-        unique_key='geolocation_id',
-        tmp_relation_type='table'
-
+        unique_key='geolocation_id'
     )
 }}
 
-WITH bronze_geolocation AS (
-    SELECT
-        geolocation_id,
-        geolocation_zip_code_prefix,
-        geolocation_lat,
-        geolocation_lng,
-        geolocation_city,
-        geolocation_state,
-        _airbyte_emitted_at
-    FROM {{ source('BRONZE', 'geolocation_bronze') }}
-    WHERE LENGTH(TRIM(geolocation_zip_code_prefix)) > 0 
+WITH watermark AS (
     {% if is_incremental() %}
-        AND  _airbyte_emitted_at >= (SELECT MAX(_airbyte_emitted_at) FROM {{this}})
+    SELECT MAX(_airbyte_emitted_at) AS max_emitted_at FROM {{ this }}
+    {% else %}
+    SELECT NULL::timestamp AS max_emitted_at
+    {% endif %}
+),
+
+bronze_geolocation AS (
+    SELECT
+        g.geolocation_id,
+        g.geolocation_zip_code_prefix,
+        g.geolocation_lat,
+        g.geolocation_lng,
+        g.geolocation_city,
+        g.geolocation_state,
+        g._airbyte_emitted_at
+    FROM {{ source('BRONZE', 'geolocation_bronze') }} g
+    CROSS JOIN watermark w
+    WHERE LENGTH(TRIM(g.geolocation_zip_code_prefix)) > 0
+    {% if is_incremental() %}
+    AND g._airbyte_emitted_at >= w.max_emitted_at
     {% endif %}
 ),
 
@@ -42,12 +49,10 @@ city_state_normalization AS (
     LEFT JOIN official_cities b 
         ON UPPER(a.geolocation_state) = UPPER(b.UF)
         AND JAROWINKLER_SIMILARITY(LOWER(a.geolocation_city), LOWER(b.City)) >= 80
-        
     QUALIFY ROW_NUMBER() OVER (
         PARTITION BY a.geolocation_id 
         ORDER BY match_score DESC
     ) = 1
 )
-
 
 SELECT * FROM city_state_normalization
