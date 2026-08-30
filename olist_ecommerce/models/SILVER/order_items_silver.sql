@@ -1,7 +1,7 @@
 {{ config(
     materialized='incremental',
     incremental_strategy='merge',
-    unique_key=['order_id', 'order_item_id'] 
+    unique_key=['order_id', 'order_item_id']
 ) }}
 
 with bronze_order_items as (
@@ -22,12 +22,11 @@ with bronze_order_items as (
 ),
 
 deduped AS (
-    SELECT 
-        *,
-        QUALIFY ROW_NUMBER() OVER(
-                PARTITION BY order_id, order_item_id 
-                ORDER BY _airbyte_emitted_at DESC) = 1 
+    SELECT *
     FROM bronze_order_items
+    QUALIFY ROW_NUMBER() OVER(
+        PARTITION BY order_id, order_item_id 
+        ORDER BY _airbyte_emitted_at DESC) = 1
 )
 
 SELECT 

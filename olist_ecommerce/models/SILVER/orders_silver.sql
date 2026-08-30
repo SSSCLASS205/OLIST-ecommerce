@@ -27,12 +27,12 @@ WITH bronze_orders AS (
 ),
 deduped AS (
     SELECT 
-        *,
-        QUALIFY ROW_NUMBER()
-            OVER(PARTITION BY order_id
-                    ORDER BY update_at DESC, 
-                    _airbyte_emitted_at DESC ) = 1
+        *
     FROM bronze_orders
+    QUALIFY ROW_NUMBER() OVER(
+        PARTITION BY order_id
+            ORDER BY update_at DESC, 
+            _airbyte_emitted_at DESC ) = 1
 )
 
 SELECT 

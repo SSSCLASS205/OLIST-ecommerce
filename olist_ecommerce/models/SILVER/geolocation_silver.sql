@@ -2,7 +2,9 @@
     config(
         materialized='incremental',
         incremental_strategy='merge',
-        unique_key='geolocation_id'
+        unique_key='geolocation_id',
+        tmp_relation_type='table'
+
     )
 }}
 
