@@ -27675,3 +27675,122 @@ File Path                                      PID    Runtime      # DAGs    # E
 /opt/airflow/dags/prod/airbyte_to_dbt_prod.py                           1           0  0.18s           2026-08-30T16:44:03                      12
 /opt/airflow/dags/dev/airbyte_to_dbt_dev.py                             1           0  0.16s           2026-08-30T16:44:03                      10
 ================================================================================
+[2026-08-30T16:44:40.545+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                      PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+---------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/dev/airbyte_to_dbt_dev.py                             1           0  1.08s           2026-08-30T16:44:34                      10
+/opt/airflow/dags/prod/airbyte_to_dbt_prod.py                           1           0  1.08s           2026-08-30T16:44:34                      12
+================================================================================
+[2026-08-30T16:45:10.734+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                      PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+---------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/dev/airbyte_to_dbt_dev.py                             1           0  1.42s           2026-08-30T16:45:06                      10
+/opt/airflow/dags/prod/airbyte_to_dbt_prod.py                           1           0  1.41s           2026-08-30T16:45:06                      12
+================================================================================
+[2026-08-30T16:45:40.862+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                      PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+---------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/dev/airbyte_to_dbt_dev.py                             1           0  2.72s           2026-08-30T16:45:38                      10
+/opt/airflow/dags/prod/airbyte_to_dbt_prod.py                           1           0  2.71s           2026-08-30T16:45:38                      12
+================================================================================
+[2026-08-30T16:46:11.266+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                      PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+---------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/prod/airbyte_to_dbt_prod.py                           1           0  0.38s           2026-08-30T16:46:09                      12
+/opt/airflow/dags/dev/airbyte_to_dbt_dev.py                             1           0  0.24s           2026-08-30T16:46:09                      10
+================================================================================
+[2026-08-30T16:46:41.747+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                      PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+---------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/prod/airbyte_to_dbt_prod.py                           1           0  0.23s           2026-08-30T16:46:39                      12
+/opt/airflow/dags/dev/airbyte_to_dbt_dev.py                             1           0  0.21s           2026-08-30T16:46:39                      10
+================================================================================
+[2026-08-30T16:47:12.705+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                      PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+---------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/dev/airbyte_to_dbt_dev.py                             1           0  1.78s           2026-08-30T16:47:11                      10
+/opt/airflow/dags/prod/airbyte_to_dbt_prod.py                           1           0  1.77s           2026-08-30T16:47:11                      12
+================================================================================
+[2026-08-30T16:47:43.073+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                      PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+---------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/prod/airbyte_to_dbt_prod.py                           1           0  0.21s           2026-08-30T16:47:42                      12
+/opt/airflow/dags/dev/airbyte_to_dbt_dev.py                             1           0  0.20s           2026-08-30T16:47:42                      10
+================================================================================
+[2026-08-30T16:48:13.441+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                      PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+---------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/prod/airbyte_to_dbt_prod.py                           1           0  0.21s           2026-08-30T16:48:12                      12
+/opt/airflow/dags/dev/airbyte_to_dbt_dev.py                             1           0  0.19s           2026-08-30T16:48:12                      10
+================================================================================
+[2026-08-30T16:48:28.512+0000] {manager.py:821} INFO - Searching for files in /opt/airflow/dags
+[2026-08-30T16:48:28.543+0000] {manager.py:824} INFO - There are 2 files in /opt/airflow/dags
+[2026-08-30T16:48:44.078+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                      PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+---------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/prod/airbyte_to_dbt_prod.py                           1           0  0.33s           2026-08-30T16:48:43                      12
+/opt/airflow/dags/dev/airbyte_to_dbt_dev.py                             1           0  0.32s           2026-08-30T16:48:43                      10
+================================================================================
+[2026-08-30T16:49:14.639+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                      PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+---------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/prod/airbyte_to_dbt_prod.py                           1           0  0.41s           2026-08-30T16:49:13                      12
+/opt/airflow/dags/dev/airbyte_to_dbt_dev.py                             1           0  0.39s           2026-08-30T16:49:13                      10
+================================================================================
+[2026-08-30T16:49:44.976+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                      PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+---------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/dev/airbyte_to_dbt_dev.py                             1           0  0.17s           2026-08-30T16:49:43                      10
+/opt/airflow/dags/prod/airbyte_to_dbt_prod.py                           1           0  0.17s           2026-08-30T16:49:43                      12
+================================================================================
+[2026-08-30T16:50:15.161+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                        PID  Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+---------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/dev/airbyte_to_dbt_dev.py                             1           0  1.01s           2026-08-30T16:50:15                      10
+/opt/airflow/dags/prod/airbyte_to_dbt_prod.py   7126  1.01s             1           0  0.17s           2026-08-30T16:49:43                      12
+================================================================================
+[2026-08-30T16:50:45.363+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                        PID  Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+---------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/prod/airbyte_to_dbt_prod.py   7136  0.01s             1           0  1.06s           2026-08-30T16:50:15                      12
+/opt/airflow/dags/dev/airbyte_to_dbt_dev.py     7133  0.02s             1           0  1.01s           2026-08-30T16:50:15                      10
+================================================================================

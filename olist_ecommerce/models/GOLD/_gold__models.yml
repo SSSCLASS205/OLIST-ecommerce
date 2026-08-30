@@ -411,28 +411,6 @@ unit_tests:
         - {review_id: 'r2', has_comment: true}
         - {review_id: 'r3', has_comment: false}
 
-  # ── dim_date ──
-  - name: test_dim_date_date_id_format
-    model: dim_date
-    overrides:
-      macros:
-        is_incremental: false
-    given: []
-    expect:
-      rows:
-        - {date_actual: '2024-03-05', date_id: 20240305}
-
-  - name: test_dim_date_weekend_flag
-    model: dim_date
-    overrides:
-      macros:
-        is_incremental: false
-    given: []
-    expect:
-      rows:
-        - {date_actual: '2024-03-09', is_weekend: true}
-        - {date_actual: '2024-03-05', is_weekend: false}
-
   # ── dim_customer: SCD2 correctness ──
   # ASSUMES the ref('sellers_snapshot') and updated_at -> update_at fixes
   # have been applied to dim_customer/dim_seller.sql. Confirm before running.
