@@ -44,7 +44,8 @@ city_state_normalization AS (
         b.State AS full_state_name,
         a.geolocation_lat,
         a.geolocation_lng,
-        JAROWINKLER_SIMILARITY(LOWER(a.geolocation_city), LOWER(b.City)) AS match_score
+        JAROWINKLER_SIMILARITY(LOWER(a.geolocation_city), LOWER(b.City)) AS match_score,
+        a._airbyte_emitted_at
     FROM bronze_geolocation a 
     LEFT JOIN official_cities b 
         ON UPPER(a.geolocation_state) = UPPER(b.UF)
