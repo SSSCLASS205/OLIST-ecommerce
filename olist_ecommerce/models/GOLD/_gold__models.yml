@@ -13,7 +13,7 @@ models:
           - unique
           - not_null
 
-  - name: dim_order_attribute
+  - name: dim_order_attributes
     description: "Junk dimension: cross join of distinct payment_type x order_status"
     columns:
       - name: attribute_id
@@ -141,7 +141,7 @@ models:
             - order_id
             - order_item_id
 
-  - name: fact_payment
+  - name: fact_payments
     description: "Order payments merged with current order state and order_attributes junk key"
     columns:
       - name: order_id
