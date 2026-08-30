@@ -13,7 +13,7 @@ models:
           - unique
           - not_null
 
-  - name: dim_order_attributes
+  - name: dim_order_attribute
     description: "Junk dimension: cross join of distinct payment_type x order_status"
     columns:
       - name: attribute_id
