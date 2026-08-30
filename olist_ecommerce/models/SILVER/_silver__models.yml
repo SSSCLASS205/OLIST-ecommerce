@@ -119,6 +119,9 @@ unit_tests:
   # ── orders_silver ──
   - name: test_orders_silver_dedup_keeps_latest_update
     model: orders_silver
+    overrides:
+      macros:
+        is_incremental: false
     given:
       - input: source('BRONZE', 'orders_bronze')
         rows:
@@ -139,6 +142,9 @@ unit_tests:
   - name: test_orders_silver_tiebreak_on_emitted_at
     description: Same update_at, later _airbyte_emitted_at wins.
     model: orders_silver
+    overrides:
+      macros:
+        is_incremental: false
     given:
       - input: source('BRONZE', 'orders_bronze')
         rows:
@@ -159,6 +165,9 @@ unit_tests:
   # ── order_items_silver ──
   - name: test_order_items_silver_dedup_keeps_latest_emitted
     model: order_items_silver
+    overrides:
+      macros:
+        is_incremental: false
     given:
       - input: source('BRONZE', 'order_items_bronze')
         rows:
@@ -174,6 +183,9 @@ unit_tests:
 
   - name: test_order_items_silver_distinct_items_both_kept
     model: order_items_silver
+    overrides:
+      macros:
+        is_incremental: false
     given:
       - input: source('BRONZE', 'order_items_bronze')
         rows:
@@ -191,6 +203,9 @@ unit_tests:
   # ── order_payments_silver ──
   - name: test_order_payments_silver_dedup_keeps_latest_emitted
     model: order_payments_silver
+    overrides:
+      macros:
+        is_incremental: false
     given:
       - input: source('BRONZE', 'order_payments_bronze')
         rows:
@@ -207,6 +222,9 @@ unit_tests:
       Verifies the level_of_installment CASE thresholds:
       0 -> NONE, 1 -> LOW, 2-3 -> MEDIUM, 4+ -> HIGH.
     model: order_payments_silver
+    overrides:
+      macros:
+        is_incremental: false
     given:
       - input: source('BRONZE', 'order_payments_bronze')
         rows:
@@ -228,6 +246,9 @@ unit_tests:
   # ── order_reviews_silver ──
   - name: test_order_reviews_silver_dedup_keeps_latest_update
     model: order_reviews_silver
+    overrides:
+      macros:
+        is_incremental: false
     given:
       - input: source('BRONZE', 'order_reviews_bronze')
         rows:
@@ -245,6 +266,9 @@ unit_tests:
 
   - name: test_order_reviews_silver_tiebreak_on_emitted_at
     model: order_reviews_silver
+    overrides:
+      macros:
+        is_incremental: false
     given:
       - input: source('BRONZE', 'order_reviews_bronze')
         rows:
@@ -263,6 +287,9 @@ unit_tests:
   # ── product_silver ──
   - name: test_product_silver_dedup_keeps_latest
     model: product_silver
+    overrides:
+      macros:
+        is_incremental: false
     given:
       - input: source('BRONZE', 'products_bronze')
         rows:
@@ -286,6 +313,9 @@ unit_tests:
   - name: test_product_silver_falls_back_to_raw_category_when_untranslated
     description: If no translation row exists, the raw Portuguese category name is kept via COALESCE.
     model: product_silver
+    overrides:
+      macros:
+        is_incremental: false
     given:
       - input: source('BRONZE', 'products_bronze')
         rows:
@@ -308,6 +338,9 @@ unit_tests:
       (zip, lat, lng), so distinct geolocation_ids sharing coordinates
       are never dropped.
     model: geolocation_silver
+    overrides:
+      macros:
+        is_incremental: false
     given:
       - input: source('BRONZE', 'geolocation_bronze')
         rows:
@@ -330,6 +363,9 @@ unit_tests:
   - name: test_geolocation_silver_unmatched_city_kept_with_nulls
     description: A city below the 80 Jarowinkler threshold is kept (LEFT JOIN) with null standardized fields, not dropped.
     model: geolocation_silver
+    overrides:
+      macros:
+        is_incremental: false
     given:
       - input: source('BRONZE', 'geolocation_bronze')
         rows:

@@ -187,6 +187,9 @@ unit_tests:
       an order whose item synced weeks ago but whose status just
       changed today must still appear in fact_sales.
     model: fact_sales
+    overrides:
+      macros:
+        is_incremental: false
     given:
       - input: ref('orders_silver')
         rows:
@@ -206,6 +209,9 @@ unit_tests:
 
   - name: test_fact_sales_purchase_date_id_format
     model: fact_sales
+    overrides:
+      macros:
+        is_incremental: false
     given:
       - input: ref('orders_silver')
         rows:
@@ -226,6 +232,9 @@ unit_tests:
   - name: test_fact_sales_no_orphan_items_without_matching_order
     description: An item with no matching order_id in orders_silver should not appear (INNER JOIN semantics).
     model: fact_sales
+    overrides:
+      macros:
+        is_incremental: false
     given:
       - input: ref('orders_silver')
         rows: []
@@ -241,6 +250,9 @@ unit_tests:
   - name: test_fact_reviews_hours_to_answer_no_truncation
     description: Regression test for the CAST(...AS DATE) bug that zeroed out the time component.
     model: fact_reviews
+    overrides:
+      macros:
+        is_incremental: false
     given:
       - input: ref('order_reviews_silver')
         rows:
@@ -257,6 +269,9 @@ unit_tests:
 
   - name: test_fact_reviews_null_answer_gives_null_hours
     model: fact_reviews
+    overrides:
+      macros:
+        is_incremental: false
     given:
       - input: ref('order_reviews_silver')
         rows:
@@ -273,6 +288,9 @@ unit_tests:
   - name: test_fact_reviews_only_joins_current_order_version
     description: Regression test for the dbt_valid_to IS NULL fix -- must only match the current snapshot row, not superseded versions.
     model: fact_reviews
+    overrides:
+      macros:
+        is_incremental: false
     given:
       - input: ref('order_reviews_silver')
         rows:
@@ -291,6 +309,9 @@ unit_tests:
   - name: test_fact_payments_current_order_join_only
     description: Only the current (dbt_valid_to IS NULL) order row should be joined.
     model: fact_payments
+    overrides:
+      macros:
+        is_incremental: false
     given:
       - input: ref('order_payments_silver')
         rows:
@@ -311,6 +332,9 @@ unit_tests:
 
   - name: test_fact_payments_date_id_format
     model: fact_payments
+    overrides:
+      macros:
+        is_incremental: false
     given:
       - input: ref('order_payments_silver')
         rows:
@@ -329,6 +353,9 @@ unit_tests:
   - name: test_dim_order_attributes_full_cross_join
     description: Every distinct payment_type must appear against every distinct order_status.
     model: dim_order_attributes
+    overrides:
+      macros:
+        is_incremental: false
     given:
       - input: ref('order_payments_silver')
         rows:
@@ -347,6 +374,9 @@ unit_tests:
 
   - name: test_dim_order_attributes_excludes_nulls
     model: dim_order_attributes
+    overrides:
+      macros:
+        is_incremental: false
     given:
       - input: ref('order_payments_silver')
         rows:
@@ -363,6 +393,9 @@ unit_tests:
   # ── dim_feedback_profile: has_comment logic ──
   - name: test_dim_feedback_profile_has_comment_logic
     model: dim_feedback_profile
+    overrides:
+      macros:
+        is_incremental: false
     given:
       - input: ref('order_reviews_silver')
         rows:
@@ -381,6 +414,9 @@ unit_tests:
   # ── dim_date ──
   - name: test_dim_date_date_id_format
     model: dim_date
+    overrides:
+      macros:
+        is_incremental: false
     given: []
     expect:
       rows:
@@ -388,6 +424,9 @@ unit_tests:
 
   - name: test_dim_date_weekend_flag
     model: dim_date
+    overrides:
+      macros:
+        is_incremental: false
     given: []
     expect:
       rows:
@@ -400,6 +439,9 @@ unit_tests:
   - name: test_dim_customer_scd2_two_versions_both_kept
     description: An address change should close the old version and open a new one -- both rows must exist.
     model: dim_customer
+    overrides:
+      macros:
+        is_incremental: false
     given:
       - input: ref('customers_snapshot')
         rows:
@@ -418,6 +460,9 @@ unit_tests:
 
   - name: test_dim_customer_is_current_flag
     model: dim_customer
+    overrides:
+      macros:
+        is_incremental: false
     given:
       - input: ref('customers_snapshot')
         rows:
@@ -432,6 +477,9 @@ unit_tests:
   # ── dim_seller: SCD2 correctness ──
   - name: test_dim_seller_scd2_two_versions_both_kept
     model: dim_seller
+    overrides:
+      macros:
+        is_incremental: false
     given:
       - input: ref('sellers_snapshot')
         rows:
