@@ -9,13 +9,13 @@
 WITH changed_customers AS (
 
     SELECT DISTINCT customer_id
-    FROM {{ ref('customers_snapshot') }}
+    FROM {{ ref('customers_snapshot') }} snap
 
     {% if is_incremental() %}
 
-    WHERE _airbyte_extracted_at >= (
-        SELECT COALESCE(MAX(_airbyte_extracted_at), '1900-01-01'::timestamp)
-        FROM {{ this }}
+    WHERE snap._airbyte_extracted_at >= (
+        SELECT COALESCE(MAX(existing._airbyte_extracted_at), '1900-01-01'::timestamp)
+        FROM {{ this }} existing
     )
 
     {% endif %}
