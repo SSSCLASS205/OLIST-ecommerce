@@ -1,11 +1,34 @@
 {{
     config(
-        materialized="table"    
+        materialized='incremental',
+        incremental_strategy='merge',
+        unique_key='geolocation_id'
     )
 }}
 
-WITH bronze_geolocation AS (
-    SELECT * FROM {{ source('BRONZE', 'geolocation_bronze') }}
+WITH watermark AS (
+    {% if is_incremental() %}
+    SELECT MAX(_airbyte_emitted_at) AS max_emitted_at FROM {{ this }}
+    {% else %}
+    SELECT NULL::timestamp AS max_emitted_at
+    {% endif %}
+),
+
+bronze_geolocation AS (
+    SELECT
+        g.geolocation_id,
+        g.geolocation_zip_code_prefix,
+        g.geolocation_lat,
+        g.geolocation_lng,
+        g.geolocation_city,
+        g.geolocation_state,
+        g._airbyte_emitted_at
+    FROM {{ source('BRONZE', 'geolocation_bronze') }} g
+    CROSS JOIN watermark w
+    WHERE LENGTH(TRIM(g.geolocation_zip_code_prefix)) > 0
+    {% if is_incremental() %}
+    AND g._airbyte_emitted_at >= w.max_emitted_at
+    {% endif %}
 ),
 
 official_cities AS (
@@ -14,33 +37,23 @@ official_cities AS (
 
 city_state_normalization AS (
     SELECT 
+        a.geolocation_id,
         a.geolocation_zip_code_prefix,
-        LOWER(COLLATE(b.City, 'ai-ci')) AS standardized_city,
+        LOWER(b.City) AS standardized_city, 
         UPPER(b.UF) AS standardized_state_code,
         b.State AS full_state_name,
         a.geolocation_lat,
-        a.geolocation_lng
+        a.geolocation_lng,
+        JAROWINKLER_SIMILARITY(LOWER(a.geolocation_city), LOWER(b.City)) AS match_score,
+        a._airbyte_emitted_at
     FROM bronze_geolocation a 
-    INNER JOIN official_cities b 
+    LEFT JOIN official_cities b 
         ON UPPER(a.geolocation_state) = UPPER(b.UF)
-        AND JAROWINKLER_SIMILARITY(LOWER(COLLATE(a.geolocation_city, 'ai-ci')), LOWER(COLLATE(b.City, 'ai-ci'))) >= 80
-),
-
-aggregated_data AS (
-    SELECT 
-        geolocation_zip_code_prefix,
-        standardized_city,
-        standardized_state_code,
-        full_state_name,
-        ARRAY_AGG(OBJECT_CONSTRUCT('lat', geolocation_lat, 'lng', geolocation_lng)) AS all_coordinates_in_prefix,
-        AVG(geolocation_lat) AS centroid_lat,
-        AVG(geolocation_lng) AS centroid_lng
-    FROM city_state_normalization
-    GROUP BY 
-        geolocation_zip_code_prefix, 
-        standardized_city, 
-        standardized_state_code, 
-        full_state_name
+        AND JAROWINKLER_SIMILARITY(LOWER(a.geolocation_city), LOWER(b.City)) >= 80
+    QUALIFY ROW_NUMBER() OVER (
+        PARTITION BY a.geolocation_id 
+        ORDER BY match_score DESC
+    ) = 1
 )
 
-SELECT * FROM aggregated_data;
+SELECT * FROM city_state_normalization

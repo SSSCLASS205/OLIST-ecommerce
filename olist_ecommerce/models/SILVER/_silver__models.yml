@@ -5,69 +5,75 @@ models:
     description: "Deduplicated order lifecycle records"
     columns:
       - name: order_id
-        tests:
+        data_tests:
           - unique
           - not_null
       - name: customer_id
-        tests:
+        data_tests:
           - not_null
       - name: order_status
-        tests:
+        data_tests:
           - accepted_values:
-              values: ['delivered', 'shipped', 'canceled', 'unavailable',
-                        'invoiced', 'processing', 'created', 'approved']
+              arguments:
+                values: ['delivered', 'shipped', 'canceled', 'unavailable',
+                         'invoiced', 'processing', 'created', 'approved']
 
-  - name: orders_items_silver
+  - name: order_items_silver
     description: "Deduplicated order line items"
     columns:
       - name: order_id
-        tests:
+        data_tests:
           - not_null
       - name: order_item_id
-        tests:
+        data_tests:
           - not_null
       - name: product_id
-        tests:
+        data_tests:
           - not_null
       - name: seller_id
-        tests:
+        data_tests:
           - not_null
       - name: price
-        tests:
+        data_tests:
           - dbt_utils.accepted_range:
-              min_value: 0
-              inclusive: true
+              arguments:
+                min_value: 0
+                inclusive: true
       - name: freight_value
-        tests:
+        data_tests:
           - dbt_utils.accepted_range:
-              min_value: 0
-              inclusive: true
-    tests:
+              arguments:
+                min_value: 0
+                inclusive: true
+    data_tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - order_id
             - order_item_id
 
   - name: order_payments_silver
-    description: "Deduplicated payment splits per order"
+    description: "Deduplicated payment splits per order, with installment bucketing"
     columns:
       - name: order_id
-        tests:
+        data_tests:
           - not_null
       - name: payment_type
-        tests:
+        data_tests:
           - accepted_values:
-              values: ['credit_card', 'boleto', 'voucher', 'debit_card', 'not_defined']
+              arguments:
+                values: ['credit_card', 'boleto', 'voucher', 'debit_card', 'not_defined']
       - name: level_of_installment
-        tests:
+        data_tests:
           - accepted_values:
-              values: ['LOW', 'MEDIUM', 'HIGH']
+              arguments:
+                values: ['NONE', 'LOW', 'MEDIUM', 'HIGH']
       - name: payment_value
-        tests:
+        data_tests:
           - dbt_utils.accepted_range:
-              min_value: 0
-              inclusive: true
-    tests:
+              arguments:
+                min_value: 0
+                inclusive: true
+    data_tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - order_id
@@ -77,37 +83,299 @@ models:
     description: "Deduplicated customer review records"
     columns:
       - name: review_id
-        tests:
+        data_tests:
           - unique
           - not_null
       - name: order_id
-        tests:
+        data_tests:
           - not_null
       - name: review_score
-        tests:
+        data_tests:
           - accepted_values:
-              values: [1, 2, 3, 4, 5]
+              arguments:
+                values: [1, 2, 3, 4, 5]
 
   - name: product_silver
-    description: "Deduplicated product catalog with translated category"
+    description: "Deduplicated product catalog with translated category (English name preferred, falls back to raw Portuguese name)"
     columns:
       - name: product_id
-        tests:
+        data_tests:
           - unique
           - not_null
 
   - name: geolocation_silver
-    description: "Zip-prefix-level geolocation centroids, validated against official city list"
+    description: "Geolocation records standardized against an official Brazilian city/state list via Jarowinkler fuzzy match (score >= 80); unmatched rows are kept with null standardized fields"
     columns:
+      - name: geolocation_id
+        data_tests:
+          - unique
+          - not_null
       - name: geolocation_zip_code_prefix
-        tests:
+        data_tests:
           - not_null
-      - name: standardized_state_code
-        tests:
-          - not_null
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - geolocation_zip_code_prefix
-            - standardized_city
-            - standardized_state_code
+
+unit_tests:
+
+  # ── orders_silver ──
+  - name: test_orders_silver_dedup_keeps_latest_update
+    model: orders_silver
+    overrides:
+      macros:
+        is_incremental: false
+    given:
+      - input: source('BRONZE', 'orders_bronze')
+        rows:
+          - {order_id: 'o1', customer_id: 'c1', order_status: 'shipped',
+             order_purchase_timestamp: '2024-01-01', order_approved_at: '2024-01-01',
+             order_delivered_carrier_date: null, order_delivered_customer_date: null,
+             order_estimated_delivery_date: '2024-01-10',
+             update_at: '2024-01-05', _airbyte_emitted_at: '2024-01-05'}
+          - {order_id: 'o1', customer_id: 'c1', order_status: 'delivered',
+             order_purchase_timestamp: '2024-01-01', order_approved_at: '2024-01-01',
+             order_delivered_carrier_date: '2024-01-08', order_delivered_customer_date: '2024-01-09',
+             order_estimated_delivery_date: '2024-01-10',
+             update_at: '2024-01-09', _airbyte_emitted_at: '2024-01-09'}
+    expect:
+      rows:
+        - {order_id: 'o1', order_status: 'delivered', update_at: '2024-01-09'}
+
+  - name: test_orders_silver_tiebreak_on_emitted_at
+    description: Same update_at, later _airbyte_emitted_at wins.
+    model: orders_silver
+    overrides:
+      macros:
+        is_incremental: false
+    given:
+      - input: source('BRONZE', 'orders_bronze')
+        rows:
+          - {order_id: 'o2', customer_id: 'c2', order_status: 'processing',
+             order_purchase_timestamp: '2024-01-01', order_approved_at: null,
+             order_delivered_carrier_date: null, order_delivered_customer_date: null,
+             order_estimated_delivery_date: '2024-01-10',
+             update_at: '2024-01-02', _airbyte_emitted_at: '2024-01-02 09:00:00'}
+          - {order_id: 'o2', customer_id: 'c2', order_status: 'approved',
+             order_purchase_timestamp: '2024-01-01', order_approved_at: '2024-01-02',
+             order_delivered_carrier_date: null, order_delivered_customer_date: null,
+             order_estimated_delivery_date: '2024-01-10',
+             update_at: '2024-01-02', _airbyte_emitted_at: '2024-01-02 15:00:00'}
+    expect:
+      rows:
+        - {order_id: 'o2', order_status: 'approved'}
+
+  # ── order_items_silver ──
+  - name: test_order_items_silver_dedup_keeps_latest_emitted
+    model: order_items_silver
+    overrides:
+      macros:
+        is_incremental: false
+    given:
+      - input: source('BRONZE', 'order_items_bronze')
+        rows:
+          - {order_id: 'o1', order_item_id: 1, product_id: 'p1', seller_id: 's1',
+             shipping_limit_date: '2024-01-05', price: 100, freight_value: 10,
+             _airbyte_emitted_at: '2024-01-01'}
+          - {order_id: 'o1', order_item_id: 1, product_id: 'p1', seller_id: 's1',
+             shipping_limit_date: '2024-01-05', price: 120, freight_value: 10,
+             _airbyte_emitted_at: '2024-01-03'}
+    expect:
+      rows:
+        - {order_id: 'o1', order_item_id: 1, price: 120}
+
+  - name: test_order_items_silver_distinct_items_both_kept
+    model: order_items_silver
+    overrides:
+      macros:
+        is_incremental: false
+    given:
+      - input: source('BRONZE', 'order_items_bronze')
+        rows:
+          - {order_id: 'o1', order_item_id: 1, product_id: 'p1', seller_id: 's1',
+             shipping_limit_date: '2024-01-05', price: 100, freight_value: 10,
+             _airbyte_emitted_at: '2024-01-01'}
+          - {order_id: 'o1', order_item_id: 2, product_id: 'p2', seller_id: 's1',
+             shipping_limit_date: '2024-01-05', price: 50, freight_value: 5,
+             _airbyte_emitted_at: '2024-01-01'}
+    expect:
+      rows:
+        - {order_id: 'o1', order_item_id: 1, price: 100}
+        - {order_id: 'o1', order_item_id: 2, price: 50}
+
+  # ── order_payments_silver ──
+  - name: test_order_payments_silver_dedup_keeps_latest_emitted
+    model: order_payments_silver
+    overrides:
+      macros:
+        is_incremental: false
+    given:
+      - input: source('BRONZE', 'order_payments_bronze')
+        rows:
+          - {order_id: 'o1', payment_sequential: 1, payment_type: 'credit_card',
+             payment_installments: 1, payment_value: 100, _airbyte_emitted_at: '2024-01-01'}
+          - {order_id: 'o1', payment_sequential: 1, payment_type: 'credit_card',
+             payment_installments: 2, payment_value: 100, _airbyte_emitted_at: '2024-01-04'}
+    expect:
+      rows:
+        - {order_id: 'o1', payment_sequential: 1, payment_installments: 2}
+
+  - name: test_order_payments_silver_installment_bucketing
+    description: >
+      Verifies the level_of_installment CASE thresholds:
+      0 -> NONE, 1 -> LOW, 2-3 -> MEDIUM, 4+ -> HIGH.
+    model: order_payments_silver
+    overrides:
+      macros:
+        is_incremental: false
+    given:
+      - input: source('BRONZE', 'order_payments_bronze')
+        rows:
+          - {order_id: 'o1', payment_sequential: 1, payment_type: 'voucher',
+             payment_installments: 0, payment_value: 50, _airbyte_emitted_at: '2024-01-01'}
+          - {order_id: 'o2', payment_sequential: 1, payment_type: 'credit_card',
+             payment_installments: 1, payment_value: 100, _airbyte_emitted_at: '2024-01-01'}
+          - {order_id: 'o3', payment_sequential: 1, payment_type: 'credit_card',
+             payment_installments: 3, payment_value: 300, _airbyte_emitted_at: '2024-01-01'}
+          - {order_id: 'o4', payment_sequential: 1, payment_type: 'credit_card',
+             payment_installments: 6, payment_value: 600, _airbyte_emitted_at: '2024-01-01'}
+    expect:
+      rows:
+        - {order_id: 'o1', level_of_installment: 'NONE'}
+        - {order_id: 'o2', level_of_installment: 'LOW'}
+        - {order_id: 'o3', level_of_installment: 'MEDIUM'}
+        - {order_id: 'o4', level_of_installment: 'HIGH'}
+
+  # ── order_reviews_silver ──
+  - name: test_order_reviews_silver_dedup_keeps_latest_update
+    model: order_reviews_silver
+    overrides:
+      macros:
+        is_incremental: false
+    given:
+      - input: source('BRONZE', 'order_reviews_bronze')
+        rows:
+          - {review_id: 'r1', order_id: 'o1', review_score: 3,
+             review_comment_title: null, review_comment_message: null,
+             review_creation_date: '2024-01-01', review_answer_timestamp: null,
+             update_at: '2024-01-01', _airbyte_emitted_at: '2024-01-01'}
+          - {review_id: 'r1', order_id: 'o1', review_score: 5,
+             review_comment_title: 'Great!', review_comment_message: 'loved it',
+             review_creation_date: '2024-01-01', review_answer_timestamp: '2024-01-03',
+             update_at: '2024-01-03', _airbyte_emitted_at: '2024-01-03'}
+    expect:
+      rows:
+        - {review_id: 'r1', review_score: 5}
+
+  - name: test_order_reviews_silver_tiebreak_on_emitted_at
+    model: order_reviews_silver
+    overrides:
+      macros:
+        is_incremental: false
+    given:
+      - input: source('BRONZE', 'order_reviews_bronze')
+        rows:
+          - {review_id: 'r2', order_id: 'o2', review_score: 1,
+             review_comment_title: null, review_comment_message: null,
+             review_creation_date: '2024-01-01', review_answer_timestamp: null,
+             update_at: '2024-01-01', _airbyte_emitted_at: '2024-01-01 09:00:00'}
+          - {review_id: 'r2', order_id: 'o2', review_score: 4,
+             review_comment_title: null, review_comment_message: null,
+             review_creation_date: '2024-01-01', review_answer_timestamp: null,
+             update_at: '2024-01-01', _airbyte_emitted_at: '2024-01-01 15:00:00'}
+    expect:
+      rows:
+        - {review_id: 'r2', review_score: 4}
+
+  # ── product_silver ──
+  - name: test_product_silver_dedup_keeps_latest
+    model: product_silver
+    overrides:
+      macros:
+        is_incremental: false
+    given:
+      - input: source('BRONZE', 'products_bronze')
+        rows:
+          - {product_id: 'p1', product_category_name: 'beleza_saude',
+             product_name_lenght: 40, product_description_lenght: 200,
+             product_photos_qty: 1, product_weight_g: 500,
+             product_length_cm: 10, product_height_cm: 10, product_width_cm: 10,
+             update_at: '2024-01-01', _airbyte_emitted_at: '2024-01-01'}
+          - {product_id: 'p1', product_category_name: 'beleza_saude',
+             product_name_lenght: 40, product_description_lenght: 200,
+             product_photos_qty: 3, product_weight_g: 500,
+             product_length_cm: 10, product_height_cm: 10, product_width_cm: 10,
+             update_at: '2024-01-05', _airbyte_emitted_at: '2024-01-05'}
+      - input: source('BRONZE', 'product_category_name_translation_bronze')
+        rows:
+          - {product_category_name: 'beleza_saude', product_category_name_english: 'health_beauty'}
+    expect:
+      rows:
+        - {product_id: 'p1', product_photos_qty: 3, product_category_name: 'health_beauty'}
+
+  - name: test_product_silver_falls_back_to_raw_category_when_untranslated
+    description: If no translation row exists, the raw Portuguese category name is kept via COALESCE.
+    model: product_silver
+    overrides:
+      macros:
+        is_incremental: false
+    given:
+      - input: source('BRONZE', 'products_bronze')
+        rows:
+          - {product_id: 'p2', product_category_name: 'categoria_sem_traducao',
+             product_name_lenght: 20, product_description_lenght: 100,
+             product_photos_qty: 2, product_weight_g: 300,
+             product_length_cm: 5, product_height_cm: 5, product_width_cm: 5,
+             update_at: '2024-01-01', _airbyte_emitted_at: '2024-01-01'}
+      - input: source('BRONZE', 'product_category_name_translation_bronze')
+        rows: []
+    expect:
+      rows:
+        - {product_id: 'p2', product_category_name: 'categoria_sem_traducao'}
+
+  # ── geolocation_silver ──
+  - name: test_geolocation_silver_dedup_by_geolocation_id
+    description: >
+      Regression test for the QUALIFY partition bug -- must dedup by
+      geolocation_id (the model's actual unique_key), not by
+      (zip, lat, lng), so distinct geolocation_ids sharing coordinates
+      are never dropped.
+    model: geolocation_silver
+    overrides:
+      macros:
+        is_incremental: false
+    given:
+      - input: source('BRONZE', 'geolocation_bronze')
+        rows:
+          - {geolocation_id: 1, geolocation_zip_code_prefix: '01310',
+             geolocation_lat: -23.561, geolocation_lng: -46.656,
+             geolocation_city: 'sao paulo', geolocation_state: 'SP',
+             _airbyte_emitted_at: '2024-01-01'}
+          - {geolocation_id: 2, geolocation_zip_code_prefix: '01310',
+             geolocation_lat: -23.561, geolocation_lng: -46.656,
+             geolocation_city: 'sao paulo', geolocation_state: 'SP',
+             _airbyte_emitted_at: '2024-01-01'}
+      - input: ref('list_braziliancities')
+        rows:
+          - {City: 'Sao Paulo', UF: 'SP', State: 'Sao Paulo'}
+    expect:
+      rows:
+        - {geolocation_id: 1, standardized_city: 'sao paulo', standardized_state_code: 'SP'}
+        - {geolocation_id: 2, standardized_city: 'sao paulo', standardized_state_code: 'SP'}
+
+  - name: test_geolocation_silver_unmatched_city_kept_with_nulls
+    description: A city below the 80 Jarowinkler threshold is kept (LEFT JOIN) with null standardized fields, not dropped.
+    model: geolocation_silver
+    overrides:
+      macros:
+        is_incremental: false
+    given:
+      - input: source('BRONZE', 'geolocation_bronze')
+        rows:
+          - {geolocation_id: 3, geolocation_zip_code_prefix: '99999',
+             geolocation_lat: -1.0, geolocation_lng: -1.0,
+             geolocation_city: 'zzzznotarealcity', geolocation_state: 'SP',
+             _airbyte_emitted_at: '2024-01-01'}
+      - input: ref('list_braziliancities')
+        rows:
+          - {City: 'Sao Paulo', UF: 'SP', State: 'Sao Paulo'}
+    expect:
+      rows:
+        - {geolocation_id: 3, standardized_city: null, standardized_state_code: null}

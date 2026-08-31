@@ -37,7 +37,7 @@ resource "aws_security_group" "airbyte_sg" {
     protocol    = "tcp"
     cidr_blocks = ["10.0.1.0/24"]
   }
-
+  
   egress {
     from_port   = 0
     to_port     = 0
@@ -59,11 +59,23 @@ resource "aws_security_group" "mwaa_sg" {
     self        = true
   }
 
+  # Lets the Airbyte EC2 (via its SSM agent) open an SSM port-forwarding
+  # tunnel to the private MWAA webserver endpoint on 443, so you can
+  # reach the Airflow UI from your laptop without a bastion/VPN.
+  ingress {
+    description     = "Allow SSM tunnel access to Airflow webserver from Airbyte EC2"
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
+    security_groups = [aws_security_group.airbyte_sg.id]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
   tags = { Name = "${var.project}-mwaa-sg" }
 }

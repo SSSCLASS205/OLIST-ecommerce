@@ -1,6 +1,10 @@
 {{ config(
     materialized='incremental',
-    unique_key='review_id'
+    unique_key='review_id',
+    incremental_predicates=[
+        "DBT_INTERNAL_DEST.update_at < DBT_INTERNAL_SOURCE.update_at"
+    ],
+    incremental_strategy='merge'
 ) }}
 
 WITH bronze_reviews AS (
@@ -12,7 +16,8 @@ WITH bronze_reviews AS (
         review_comment_message,
         review_creation_date,
         review_answer_timestamp,
-        _airbyte_emitted_at
+        _airbyte_emitted_at,
+        update_at
     FROM {{ source('BRONZE', 'order_reviews_bronze') }}
     
     {% if is_incremental() %}
@@ -20,15 +25,14 @@ WITH bronze_reviews AS (
     {% endif %}
 ),
 
-ranked_reviews AS (
-    SELECT 
-        *,
-        ROW_NUMBER() OVER (PARTITION BY review_id ORDER BY _airbyte_emitted_at DESC) as rnk
-    FROM bronze_reviews
-),
-
 deduped_reviews AS (
-    SELECT * FROM ranked_reviews WHERE rnk = 1
+    SELECT 
+        *
+    FROM bronze_reviews
+    QUALIFY ROW_NUMBER() OVER (
+        PARTITION BY review_id
+        ORDER BY update_at DESC ,
+        _airbyte_emitted_at DESC) = 1
 )
 
 SELECT 
@@ -39,5 +43,6 @@ SELECT
     review_comment_message,
     review_creation_date,
     review_answer_timestamp,
-    _airbyte_emitted_at
-FROM deduped_reviews;
+    _airbyte_emitted_at,
+    update_at
+FROM deduped_reviews

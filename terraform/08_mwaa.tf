@@ -64,6 +64,16 @@ resource "aws_mwaa_environment" "olist_mwaa" {
   source_bucket_arn = aws_s3_bucket.mwaa_data.arn
   dag_s3_path        = "dags/"
 
+  # Pinned to a single worker on purpose: airbyte_to_dbt_pipeline's dbt
+  # tasks (dbt_deps, Stage_External_Sources, dbt_build, dbt_docs_generate)
+  # depend on files (cloned repo, profiles.yml) written to local disk by
+  # earlier tasks in the same DAG run. With CeleryExecutor and >1 worker,
+  # those tasks could land on a different worker that never saw those
+  # files, and fail intermittently. Revisit if/when the dbt tasks are
+  # made self-contained (e.g. pulling repo/profiles from S3 each time).
+  min_workers = 1
+  max_workers = 1
+
   network_configuration {
     security_group_ids = [aws_security_group.mwaa_sg.id]
     subnet_ids          = [aws_subnet.private_az1.id, aws_subnet.private_az2.id]

@@ -9,13 +9,13 @@
 variable "snowflake_aws_iam_user_arn" {
   description = "STORAGE_AWS_IAM_USER_ARN from Snowflake DESC STORAGE INTEGRATION (placeholder until first apply)"
   type        = string
-  default     = "arn:aws:iam::000000000000:user/placeholder"
+  default     = "arn:aws:iam::832613171141:user/76dq1000-s"
 }
 
 variable "snowflake_external_id" {
   description = "STORAGE_AWS_EXTERNAL_ID from Snowflake DESC STORAGE INTEGRATION"
   type        = string
-  default     = "placeholder_external_id"
+  default     = "PBB71530_SFCRole=5_rED86B9t6lZEFosp0v0JKCX00bs="
 }
 
 resource "aws_iam_role" "snowflake_s3_role" {
@@ -60,13 +60,13 @@ resource "aws_iam_role_policy" "snowflake_s3_policy" {
 variable "snowflake_dev_aws_iam_user_arn" {
   description = "STORAGE_AWS_IAM_USER_ARN from Snowflake DESC STORAGE INTEGRATION for dev"
   type        = string
-  default     = "arn:aws:iam::000000000000:user/placeholder-dev"
+  default     = "arn:aws:iam::832613171141:user/76dq1000-s"
 }
 
 variable "snowflake_dev_external_id" {
   description = "STORAGE_AWS_EXTERNAL_ID from Snowflake DESC STORAGE INTEGRATION for dev"
   type        = string
-  default     = "placeholder_dev_external_id"
+  default     = "PBB71530_SFCRole=5_FPMWaOylQvRQ9WvKjKzrIPSpLts="
 }
 
 resource "aws_iam_role" "snowflake_s3_role_dev" {

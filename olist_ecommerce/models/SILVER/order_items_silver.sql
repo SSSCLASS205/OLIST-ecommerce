@@ -1,6 +1,7 @@
 {{ config(
     materialized='incremental',
-    unique_key=['order_id', 'order_item_id'] 
+    incremental_strategy='merge',
+    unique_key=['order_id', 'order_item_id']
 ) }}
 
 with bronze_order_items as (
@@ -20,17 +21,13 @@ with bronze_order_items as (
     {% endif %}
 ),
 
-ranked_orders AS (
-    SELECT 
-        *,
-        ROW_NUMBER() OVER(PARTITION BY order_id, order_item_id ORDER BY _airbyte_emitted_at DESC) as rnk 
-    FROM bronze_order_items
-),
-
 deduped AS (
-    SELECT * FROM ranked_orders
-    WHERE rnk = 1
-)   
+    SELECT *
+    FROM bronze_order_items
+    QUALIFY ROW_NUMBER() OVER(
+        PARTITION BY order_id, order_item_id 
+        ORDER BY _airbyte_emitted_at DESC) = 1
+)
 
 SELECT 
     order_id,
@@ -41,4 +38,4 @@ SELECT
     price,
     freight_value,
     _airbyte_emitted_at
-FROM deduped;
+FROM deduped
