@@ -18,10 +18,10 @@ WITH bronze_products AS (
         product_height_cm,
         product_width_cm,
         update_at,
-        _airbyte_emitted_at
+        _airbyte_extracted_at
     FROM {{ source('BRONZE', 'products_bronze') }}
     {% if is_incremental() %}
-    WHERE _airbyte_emitted_at > (SELECT MAX(_airbyte_emitted_at) FROM {{ this }})
+    WHERE _airbyte_extracted_at > (SELECT MAX(_airbyte_extracted_at) FROM {{ this }})
     {% endif %}
 ),
 
@@ -37,7 +37,7 @@ ranked_products AS (
         p.*,
         ROW_NUMBER() OVER (
             PARTITION BY p.product_id 
-            ORDER BY p.update_at DESC, p._airbyte_emitted_at DESC
+            ORDER BY p.update_at DESC, p._airbyte_extracted_at DESC
         ) AS rnk
     FROM bronze_products p
 ),
@@ -57,7 +57,7 @@ SELECT
     bp.product_height_cm,
     bp.product_width_cm,
     bp.update_at,
-    bp._airbyte_emitted_at
+    bp._airbyte_extracted_at
 FROM deduped_products bp
 LEFT JOIN category_translation t 
     ON bp.product_category_name = t.product_category_name

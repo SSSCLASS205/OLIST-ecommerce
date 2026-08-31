@@ -8,7 +8,7 @@
 
 WITH watermark AS (
     {% if is_incremental() %}
-    SELECT MAX(_airbyte_emitted_at) AS max_emitted_at FROM {{ this }}
+    SELECT MAX(_airbyte_extracted_at) AS max_emitted_at FROM {{ this }}
     {% else %}
     SELECT NULL::timestamp AS max_emitted_at
     {% endif %}
@@ -22,12 +22,12 @@ bronze_geolocation AS (
         g.geolocation_lng,
         g.geolocation_city,
         g.geolocation_state,
-        g._airbyte_emitted_at
+        g._airbyte_extracted_at
     FROM {{ source('BRONZE', 'geolocation_bronze') }} g
     CROSS JOIN watermark w
     WHERE LENGTH(TRIM(g.geolocation_zip_code_prefix)) > 0
     {% if is_incremental() %}
-    AND g._airbyte_emitted_at >= w.max_emitted_at
+    AND g._airbyte_extracted_at >= w.max_emitted_at
     {% endif %}
 ),
 
@@ -45,7 +45,7 @@ city_state_normalization AS (
         a.geolocation_lat,
         a.geolocation_lng,
         JAROWINKLER_SIMILARITY(LOWER(a.geolocation_city), LOWER(b.City)) AS match_score,
-        a._airbyte_emitted_at
+        a._airbyte_extracted_at
     FROM bronze_geolocation a 
     LEFT JOIN official_cities b 
         ON UPPER(a.geolocation_state) = UPPER(b.UF)

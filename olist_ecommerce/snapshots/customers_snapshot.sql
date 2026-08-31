@@ -18,11 +18,11 @@ WITH dedup_customer as (
         customer_zip_code_prefix,
         customer_city,
         customer_state,
-        _airbyte_emitted_at,
+        _airbyte_extracted_at,
         update_at,
         ROW_NUMBER() over(PARTITION BY customer_id 
             ORDER BY update_at DESC ,
-                _airbyte_emitted_at DESC
+                _airbyte_extracted_at DESC
         ) as rnk 
     FROM {{ source('BRONZE', 'customers_bronze') }}
 ),
@@ -33,7 +33,7 @@ final_dedup as (
         customer_zip_code_prefix,
         customer_city,
         customer_state,
-        _airbyte_emitted_at,
+        _airbyte_extracted_at,
         update_at
     FROM dedup_customer
     WHERE rnk = 1
@@ -45,7 +45,7 @@ SELECT
     customer_zip_code_prefix,
     customer_city,
     customer_state,
-    _airbyte_emitted_at,
+    _airbyte_extracted_at,
     update_at
 FROM final_dedup
 

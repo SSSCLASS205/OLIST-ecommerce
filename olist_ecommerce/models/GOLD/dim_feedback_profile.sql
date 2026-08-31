@@ -11,11 +11,11 @@ WITH silver_order_reviews AS (
         review_id,
         review_comment_title,
         review_comment_message,
-        _airbyte_emitted_at,
+        _airbyte_extracted_at,
         update_at
     FROM {{ ref('order_reviews_silver') }}
     {% if is_incremental() %}
-        WHERE _airbyte_emitted_at > (SELECT MAX(_airbyte_emitted_at) FROM {{ this }})
+        WHERE _airbyte_extracted_at > (SELECT MAX(_airbyte_extracted_at) FROM {{ this }})
     {% endif %}
 )
 
@@ -28,5 +28,5 @@ SELECT
             THEN TRUE
         ELSE FALSE
     END AS has_comment,
-    _airbyte_emitted_at
+    _airbyte_extracted_at
 FROM silver_order_reviews

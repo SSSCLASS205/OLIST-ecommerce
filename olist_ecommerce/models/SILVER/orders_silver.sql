@@ -17,12 +17,12 @@ WITH bronze_orders AS (
         order_delivered_carrier_date,
         order_delivered_customer_date,
         order_estimated_delivery_date,
-        _airbyte_emitted_at,
+        _airbyte_extracted_at,
         update_at
     FROM {{ source('BRONZE', 'orders_bronze') }} 
     
     {% if is_incremental() %}
-      WHERE _airbyte_emitted_at > (SELECT MAX(_airbyte_emitted_at) FROM {{ this }})
+      WHERE _airbyte_extracted_at > (SELECT MAX(_airbyte_extracted_at) FROM {{ this }})
     {% endif %}
 ),
 deduped AS (
@@ -32,7 +32,7 @@ deduped AS (
     QUALIFY ROW_NUMBER() OVER(
         PARTITION BY order_id
             ORDER BY update_at DESC, 
-            _airbyte_emitted_at DESC ) = 1
+            _airbyte_extracted_at DESC ) = 1
 )
 
 SELECT 
@@ -44,6 +44,6 @@ SELECT
     order_delivered_carrier_date,
     order_delivered_customer_date,
     order_estimated_delivery_date,
-    _airbyte_emitted_at,
+    _airbyte_extracted_at,
     update_at
 FROM deduped

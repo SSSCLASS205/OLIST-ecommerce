@@ -14,9 +14,9 @@ WITH changed_sellers AS (
 
     {% if is_incremental() %}
 
-    WHERE _airbyte_emitted_at >= (
+    WHERE _airbyte_extracted_at >= (
         SELECT COALESCE(
-            MAX(_airbyte_emitted_at),
+            MAX(_airbyte_extracted_at),
             '1900-01-01'::timestamp
         )
         FROM {{ this }}
@@ -33,7 +33,7 @@ final AS (
         a.seller_zip_code_prefix,
         a.seller_city,
         a.seller_state,
-        a._airbyte_emitted_at,
+        a._airbyte_extracted_at,
         a.update_at,
         a.dbt_valid_from,
         COALESCE(a.dbt_valid_to, '9999-12-31'::timestamp) AS dbt_valid_to,

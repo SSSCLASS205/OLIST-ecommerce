@@ -197,12 +197,12 @@ unit_tests:
              order_purchase_timestamp: '2024-01-01', order_approved_at: '2024-01-01',
              order_delivered_carrier_date: null, order_delivered_customer_date: null,
              order_estimated_delivery_date: null, update_at: '2024-06-01',
-             _airbyte_emitted_at: '2024-06-01'}
+             _airbyte_extracted_at: '2024-06-01'}
       - input: ref('order_items_silver')
         rows:
           - {order_id: 'o1', order_item_id: 1, product_id: 'p1', seller_id: 's1',
              shipping_limit_date: '2024-01-05', price: 100, freight_value: 10,
-             _airbyte_emitted_at: '2024-01-01'}
+             _airbyte_extracted_at: '2024-01-01'}
     expect:
       rows:
         - {order_id: 'o1', order_item_id: 1, order_status: 'delivered'}
@@ -219,12 +219,12 @@ unit_tests:
              order_purchase_timestamp: '2024-03-05', order_approved_at: '2024-03-05',
              order_delivered_carrier_date: null, order_delivered_customer_date: null,
              order_estimated_delivery_date: null, update_at: '2024-03-05',
-             _airbyte_emitted_at: '2024-03-05'}
+             _airbyte_extracted_at: '2024-03-05'}
       - input: ref('order_items_silver')
         rows:
           - {order_id: 'o2', order_item_id: 1, product_id: 'p1', seller_id: 's1',
              shipping_limit_date: '2024-03-06', price: 50, freight_value: 5,
-             _airbyte_emitted_at: '2024-03-05'}
+             _airbyte_extracted_at: '2024-03-05'}
     expect:
       rows:
         - {order_id: 'o2', purchase_date_id: 20240305}
@@ -242,7 +242,7 @@ unit_tests:
         rows:
           - {order_id: 'o3', order_item_id: 1, product_id: 'p1', seller_id: 's1',
              shipping_limit_date: '2024-01-05', price: 100, freight_value: 10,
-             _airbyte_emitted_at: '2024-01-01'}
+             _airbyte_extracted_at: '2024-01-01'}
     expect:
       rows: []
 
@@ -258,7 +258,7 @@ unit_tests:
           - {review_id: 'r1', order_id: 'o1', review_score: 5,
              review_creation_date: '2024-01-01 14:00:00',
              review_answer_timestamp: '2024-01-02 18:30:00',
-             _airbyte_emitted_at: '2024-01-02', update_at: '2024-01-02'}
+             _airbyte_extracted_at: '2024-01-02', update_at: '2024-01-02'}
       - input: ref('orders_silver')
         rows:
           - {order_id: 'o1', customer_id: 'c1'}
@@ -276,7 +276,7 @@ unit_tests:
         rows:
           - {review_id: 'r2', order_id: 'o2', review_score: 3,
              review_creation_date: '2024-01-01', review_answer_timestamp: null,
-             _airbyte_emitted_at: '2024-01-01', update_at: '2024-01-01'}
+             _airbyte_extracted_at: '2024-01-01', update_at: '2024-01-01'}
       - input: ref('orders_silver')
         rows:
           - {order_id: 'o2', customer_id: 'c2'}
@@ -294,8 +294,8 @@ unit_tests:
     given:
       - input: ref('order_payments_silver')
         rows:
-          - {order_id: 'o1', payment_sequential: 1, payment_type: 'credit_card', payment_installments: 1, payment_value: 100, level_of_installment: 'LOW', installment_monthly_value: 100, _airbyte_emitted_at: '2024-05-10'}
-          - {order_id: 'o2', payment_sequential: 1, payment_type: 'boleto', payment_installments: 1, payment_value: 200, level_of_installment: 'LOW', installment_monthly_value: 200, _airbyte_emitted_at: '2024-05-10'}
+          - {order_id: 'o1', payment_sequential: 1, payment_type: 'credit_card', payment_installments: 1, payment_value: 100, level_of_installment: 'LOW', installment_monthly_value: 100, _airbyte_extracted_at: '2024-05-10'}
+          - {order_id: 'o2', payment_sequential: 1, payment_type: 'boleto', payment_installments: 1, payment_value: 200, level_of_installment: 'LOW', installment_monthly_value: 200, _airbyte_extracted_at: '2024-05-10'}
       - input: ref('orders_silver')
         rows:
           - {order_id: 'o1', customer_id: 'c1', order_status: 'delivered', order_approved_at: '2024-05-10 10:00:00'}
@@ -314,7 +314,7 @@ unit_tests:
     given:
       - input: ref('order_payments_silver')
         rows:
-          - {order_id: 'o1', payment_sequential: 1, payment_type: 'credit_card', payment_installments: 2, payment_value: 150, level_of_installment: 'LOW', installment_monthly_value: 75, _airbyte_emitted_at: '2024-01-01'}
+          - {order_id: 'o1', payment_sequential: 1, payment_type: 'credit_card', payment_installments: 2, payment_value: 150, level_of_installment: 'LOW', installment_monthly_value: 75, _airbyte_extracted_at: '2024-01-01'}
       - input: ref('orders_silver')
         rows:
           - {order_id: 'o1', customer_id: 'c123', order_status: 'delivered', order_approved_at: '2024-01-01'}
@@ -331,7 +331,7 @@ unit_tests:
     given:
       - input: ref('order_payments_silver')
         rows:
-          - {order_id: 'o99', payment_sequential: 1, payment_type: 'voucher', payment_installments: 1, payment_value: 50, level_of_installment: 'LOW', installment_monthly_value: 50, _airbyte_emitted_at: '2024-01-01'}
+          - {order_id: 'o99', payment_sequential: 1, payment_type: 'voucher', payment_installments: 1, payment_value: 50, level_of_installment: 'LOW', installment_monthly_value: 50, _airbyte_extracted_at: '2024-01-01'}
       - input: ref('orders_silver')
         rows: []
     expect:
@@ -388,11 +388,11 @@ unit_tests:
       - input: ref('order_reviews_silver')
         rows:
           - {review_id: 'r1', review_comment_title: 'Great', review_comment_message: null,
-             _airbyte_emitted_at: '2024-01-01', update_at: '2024-01-01'}
+             _airbyte_extracted_at: '2024-01-01', update_at: '2024-01-01'}
           - {review_id: 'r2', review_comment_title: null, review_comment_message: 'loved it',
-             _airbyte_emitted_at: '2024-01-01', update_at: '2024-01-01'}
+             _airbyte_extracted_at: '2024-01-01', update_at: '2024-01-01'}
           - {review_id: 'r3', review_comment_title: null, review_comment_message: null,
-             _airbyte_emitted_at: '2024-01-01', update_at: '2024-01-01'}
+             _airbyte_extracted_at: '2024-01-01', update_at: '2024-01-01'}
     expect:
       rows:
         - {review_id: 'r1', has_comment: true}
@@ -411,11 +411,11 @@ unit_tests:
         rows:
           - {customer_id: 'c1', customer_unique_id: 'u1', customer_zip_code_prefix: '01310',
              customer_city: 'sao paulo', customer_state: 'SP',
-             _airbyte_emitted_at: '2024-01-01', update_at: '2024-01-01',
+             _airbyte_extracted_at: '2024-01-01', update_at: '2024-01-01',
              dbt_valid_from: '2024-01-01', dbt_valid_to: '2024-06-01'}
           - {customer_id: 'c1', customer_unique_id: 'u1', customer_zip_code_prefix: '04567',
              customer_city: 'rio de janeiro', customer_state: 'RJ',
-             _airbyte_emitted_at: '2024-06-01', update_at: '2024-06-01',
+             _airbyte_extracted_at: '2024-06-01', update_at: '2024-06-01',
              dbt_valid_from: '2024-06-01', dbt_valid_to: null}
     expect:
       rows:
@@ -432,7 +432,7 @@ unit_tests:
         rows:
           - {customer_id: 'c2', customer_unique_id: 'u2', customer_zip_code_prefix: '01310',
              customer_city: 'sao paulo', customer_state: 'SP',
-             _airbyte_emitted_at: '2024-01-01', update_at: '2024-01-01',
+             _airbyte_extracted_at: '2024-01-01', update_at: '2024-01-01',
              dbt_valid_from: '2024-01-01', dbt_valid_to: null}
     expect:
       rows:
@@ -449,11 +449,11 @@ unit_tests:
         rows:
           - {seller_id: 's1', seller_zip_code_prefix: '01310',
              seller_city: 'sao paulo', seller_state: 'SP',
-             _airbyte_emitted_at: '2024-01-01', update_at: '2024-01-01',
+             _airbyte_extracted_at: '2024-01-01', update_at: '2024-01-01',
              dbt_valid_from: '2024-01-01', dbt_valid_to: '2024-06-01'}
           - {seller_id: 's1', seller_zip_code_prefix: '04567',
              seller_city: 'rio de janeiro', seller_state: 'RJ',
-             _airbyte_emitted_at: '2024-06-01', update_at: '2024-06-01',
+             _airbyte_extracted_at: '2024-06-01', update_at: '2024-06-01',
              dbt_valid_from: '2024-06-01', dbt_valid_to: null}
     expect:
       rows:

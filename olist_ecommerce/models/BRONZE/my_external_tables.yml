@@ -13,36 +13,36 @@ sources:
           file_format: "(type = parquet)"
           auto_refresh: false
         columns:
-          - name: _airbyte_emitted_at
+          - name: _airbyte_extracted_at
             data_type: timestamp
-            expression: "value:_airbyte_emitted_at::timestamp"
+            expression: "value:_airbyte_extracted_at::timestamp"
           - name: order_id
             data_type: varchar
-            expression: "value:_airbyte_data.order_id::varchar"
+            expression: "value:order_id::varchar"
           - name: customer_id
             data_type: varchar
-            expression: "value:_airbyte_data.customer_id::varchar"
+            expression: "value:customer_id::varchar"
           - name: order_status
             data_type: varchar
-            expression: "value:_airbyte_data.order_status::varchar"
+            expression: "value:order_status::varchar"
           - name: order_purchase_timestamp
             data_type: timestamp
-            expression: "value:_airbyte_data.order_purchase_timestamp::timestamp"
+            expression: "value:order_purchase_timestamp::timestamp"
           - name: order_approved_at
             data_type: timestamp
-            expression: "value:_airbyte_data.order_approved_at::timestamp"
+            expression: "value:order_approved_at::timestamp"
           - name: order_delivered_carrier_date
             data_type: timestamp
-            expression: "value:_airbyte_data.order_delivered_carrier_date::timestamp"
+            expression: "value:order_delivered_carrier_date::timestamp"
           - name: order_delivered_customer_date
             data_type: timestamp
-            expression: "value:_airbyte_data.order_delivered_customer_date::timestamp"
+            expression: "value:order_delivered_customer_date::timestamp"
           - name: order_estimated_delivery_date
             data_type: timestamp
-            expression: "value:_airbyte_data.order_estimated_delivery_date::timestamp"
+            expression: "value:order_estimated_delivery_date::timestamp"
           - name: update_at
             data_type: timestamp
-            expression: "value:_airbyte_data.update_at::timestamp"
+            expression: "value:update_at::timestamp"
 
       - name: order_items_bronze
         description: "Line-item details for items contained within an order"
@@ -51,30 +51,30 @@ sources:
           file_format: "(type = parquet)"
           auto_refresh: false
         columns:
-          - name: _airbyte_emitted_at
+          - name: _airbyte_extracted_at
             data_type: timestamp
-            expression: "value:_airbyte_emitted_at::timestamp"
+            expression: "value:_airbyte_extracted_at::timestamp"
           - name: order_id
             data_type: varchar
-            expression: "value:_airbyte_data.order_id::varchar"
+            expression: "value:order_id::varchar"
           - name: order_item_id
             data_type: number
-            expression: "value:_airbyte_data.order_item_id::number"
+            expression: "value:order_item_id::number"
           - name: product_id
             data_type: varchar
-            expression: "value:_airbyte_data.product_id::varchar"
+            expression: "value:product_id::varchar"
           - name: seller_id
             data_type: varchar
-            expression: "value:_airbyte_data.seller_id::varchar"
+            expression: "value:seller_id::varchar"
           - name: shipping_limit_date
             data_type: timestamp
-            expression: "value:_airbyte_data.shipping_limit_date::timestamp"
+            expression: "value:shipping_limit_date::timestamp"
           - name: price
             data_type: float
-            expression: "value:_airbyte_data.price::float"
+            expression: "value:price::float"
           - name: freight_value
             data_type: float
-            expression: "value:_airbyte_data.freight_value::float"
+            expression: "value:freight_value::float"
 
       - name: order_payments_bronze
         description: "Payment details split by payment option"
@@ -83,24 +83,24 @@ sources:
           file_format: "(type = parquet)"
           auto_refresh: false
         columns:
-          - name: _airbyte_emitted_at
+          - name: _airbyte_extracted_at
             data_type: timestamp
-            expression: "value:_airbyte_emitted_at::timestamp"
+            expression: "value:_airbyte_extracted_at::timestamp"
           - name: order_id
             data_type: varchar
-            expression: "value:_airbyte_data.order_id::varchar"
+            expression: "value:order_id::varchar"
           - name: payment_sequential
             data_type: number
-            expression: "value:_airbyte_data.payment_sequential::number"
+            expression: "value:payment_sequential::number"
           - name: payment_type
             data_type: varchar
-            expression: "value:_airbyte_data.payment_type::varchar"
+            expression: "value:payment_type::varchar"
           - name: payment_installments
             data_type: number
-            expression: "value:_airbyte_data.payment_installments::number"
+            expression: "value:payment_installments::number"
           - name: payment_value
             data_type: float
-            expression: "value:_airbyte_data.payment_value::float"
+            expression: "value:payment_value::float"
 
       - name: order_reviews_bronze
         description: "Customer satisfaction feedback data"
@@ -109,33 +109,33 @@ sources:
           file_format: "(type = parquet)"
           auto_refresh: false
         columns:
-          - name: _airbyte_emitted_at
+          - name: _airbyte_extracted_at
             data_type: timestamp
-            expression: "value:_airbyte_emitted_at::timestamp"
+            expression: "value:_airbyte_extracted_at::timestamp"
           - name: review_id
             data_type: varchar
-            expression: "value:_airbyte_data.review_id::varchar"
+            expression: "value:review_id::varchar"
           - name: order_id
             data_type: varchar
-            expression: "value:_airbyte_data.order_id::varchar"
+            expression: "value:order_id::varchar"
           - name: review_score
             data_type: number
-            expression: "value:_airbyte_data.review_score::number"
+            expression: "value:review_score::number"
           - name: review_comment_title
             data_type: varchar
-            expression: "value:_airbyte_data.review_comment_title::varchar"
+            expression: "value:review_comment_title::varchar"
           - name: review_comment_message
             data_type: varchar
-            expression: "value:_airbyte_data.review_comment_message::varchar"
+            expression: "value:review_comment_message::varchar"
           - name: review_creation_date
             data_type: timestamp
-            expression: "value:_airbyte_data.review_creation_date::timestamp"
+            expression: "value:review_creation_date::timestamp"
           - name: review_answer_timestamp
             data_type: timestamp
-            expression: "value:_airbyte_data.review_answer_timestamp::timestamp"
+            expression: "value:review_answer_timestamp::timestamp"
           - name: update_at
             data_type: timestamp
-            expression: "value:_airbyte_data.update_at::timestamp"
+            expression: "value:update_at::timestamp"
 
       - name: customers_bronze
         description: "Customer demographics and geographical mapping info"
@@ -144,27 +144,27 @@ sources:
           file_format: "(type = parquet)"
           auto_refresh: false
         columns:
-          - name: _airbyte_emitted_at
+          - name: _airbyte_extracted_at
             data_type: timestamp
-            expression: "value:_airbyte_emitted_at::timestamp"
+            expression: "value:_airbyte_extracted_at::timestamp"
           - name: customer_id
             data_type: varchar
-            expression: "value:_airbyte_data.customer_id::varchar"
+            expression: "value:customer_id::varchar"
           - name: customer_unique_id
             data_type: varchar
-            expression: "value:_airbyte_data.customer_unique_id::varchar"
+            expression: "value:customer_unique_id::varchar"
           - name: customer_zip_code_prefix
             data_type: varchar
-            expression: "value:_airbyte_data.customer_zip_code_prefix::varchar"
+            expression: "value:customer_zip_code_prefix::varchar"
           - name: customer_city
             data_type: varchar
-            expression: "value:_airbyte_data.customer_city::varchar"
+            expression: "value:customer_city::varchar"
           - name: customer_state
             data_type: varchar
-            expression: "value:_airbyte_data.customer_state::varchar"
+            expression: "value:customer_state::varchar"
           - name: update_at
             data_type: timestamp
-            expression: "value:_airbyte_data.update_at::timestamp"
+            expression: "value:update_at::timestamp"
 
       - name: products_bronze
         description: "Product catalog meta-data including dimensions"
@@ -173,39 +173,39 @@ sources:
           file_format: "(type = parquet)"
           auto_refresh: false
         columns:
-          - name: _airbyte_emitted_at
+          - name: _airbyte_extracted_at
             data_type: timestamp
-            expression: "value:_airbyte_emitted_at::timestamp"
+            expression: "value:_airbyte_extracted_at::timestamp"
           - name: product_id
             data_type: varchar
-            expression: "value:_airbyte_data.product_id::varchar"
+            expression: "value:product_id::varchar"
           - name: product_category_name
             data_type: varchar
-            expression: "value:_airbyte_data.product_category_name::varchar"
+            expression: "value:product_category_name::varchar"
           - name: product_name_lenght
             data_type: number
-            expression: "value:_airbyte_data.product_name_lenght::number"
+            expression: "value:product_name_lenght::number"
           - name: product_description_lenght
             data_type: number
-            expression: "value:_airbyte_data.product_description_lenght::number"
+            expression: "value:product_description_lenght::number"
           - name: product_photos_qty
             data_type: number
-            expression: "value:_airbyte_data.product_photos_qty::number"
+            expression: "value:product_photos_qty::number"
           - name: product_weight_g
             data_type: number
-            expression: "value:_airbyte_data.product_weight_g::number"
+            expression: "value:product_weight_g::number"
           - name: product_length_cm
             data_type: number
-            expression: "value:_airbyte_data.product_length_cm::number"
+            expression: "value:product_length_cm::number"
           - name: product_height_cm
             data_type: number
-            expression: "value:_airbyte_data.product_height_cm::number"
+            expression: "value:product_height_cm::number"
           - name: product_width_cm
             data_type: number
-            expression: "value:_airbyte_data.product_width_cm::number"
+            expression: "value:product_width_cm::number"
           - name: update_at
             data_type: timestamp
-            expression: "value:_airbyte_data.update_at::timestamp"
+            expression: "value:update_at::timestamp"
 
       - name: sellers_bronze
         description: "Merchant/Seller demographic locations"
@@ -214,24 +214,24 @@ sources:
           file_format: "(type = parquet)"
           auto_refresh: false
         columns:
-          - name: _airbyte_emitted_at
+          - name: _airbyte_extracted_at
             data_type: timestamp
-            expression: "value:_airbyte_emitted_at::timestamp"
+            expression: "value:_airbyte_extracted_at::timestamp"
           - name: seller_id
             data_type: varchar
-            expression: "value:_airbyte_data.seller_id::varchar"
+            expression: "value:seller_id::varchar"
           - name: seller_zip_code_prefix
             data_type: varchar
-            expression: "value:_airbyte_data.seller_zip_code_prefix::varchar"
+            expression: "value:seller_zip_code_prefix::varchar"
           - name: seller_city
             data_type: varchar
-            expression: "value:_airbyte_data.seller_city::varchar"
+            expression: "value:seller_city::varchar"
           - name: seller_state
             data_type: varchar
-            expression: "value:_airbyte_data.seller_state::varchar"
+            expression: "value:seller_state::varchar"
           - name: update_at
             data_type: timestamp
-            expression: "value:_airbyte_data.update_at::timestamp"
+            expression: "value:update_at::timestamp"
             
       - name: geolocation_bronze
         description: "Brazilian zip codes with latitude/longitude coordinates"
@@ -240,27 +240,27 @@ sources:
           file_format: "(type = parquet)"
           auto_refresh: false
         columns:
-          - name: _airbyte_emitted_at
+          - name: _airbyte_extracted_at
             data_type: timestamp
-            expression: "value:_airbyte_emitted_at::timestamp"
+            expression: "value:_airbyte_extracted_at::timestamp"
           - name: geolocation_zip_code_prefix
             data_type: varchar
-            expression: "value:_airbyte_data.geolocation_zip_code_prefix::varchar"
+            expression: "value:geolocation_zip_code_prefix::varchar"
           - name: geolocation_lat
             data_type: float
-            expression: "value:_airbyte_data.geolocation_lat::float"
+            expression: "value:geolocation_lat::float"
           - name: geolocation_lng
             data_type: float
-            expression: "value:_airbyte_data.geolocation_lng::float"
+            expression: "value:geolocation_lng::float"
           - name: geolocation_city
             data_type: varchar
-            expression: "value:_airbyte_data.geolocation_city::varchar"
+            expression: "value:geolocation_city::varchar"
           - name: geolocation_state
             data_type: varchar
-            expression: "value:_airbyte_data.geolocation_state::varchar"
+            expression: "value:geolocation_state::varchar"
           - name: geolocation_id
             data_type: INTEGER
-            expression: "value:_airbyte_data.geolocation_id::INTEGER"
+            expression: "value:geolocation_id::INTEGER"
 
 
       - name: product_category_name_translation_bronze
@@ -270,12 +270,12 @@ sources:
           file_format: "(type = parquet)"
           auto_refresh: false
         columns:
-          - name: _airbyte_emitted_at
+          - name: _airbyte_extracted_at
             data_type: timestamp
-            expression: "value:_airbyte_emitted_at::timestamp"
+            expression: "value:_airbyte_extracted_at::timestamp"
           - name: product_category_name
             data_type: varchar
-            expression: "value:_airbyte_data.product_category_name::varchar"
+            expression: "value:product_category_name::varchar"
           - name: product_category_name_english
             data_type: varchar
-            expression: "value:_airbyte_data.product_category_name_english::varchar"
+            expression: "value:product_category_name_english::varchar"

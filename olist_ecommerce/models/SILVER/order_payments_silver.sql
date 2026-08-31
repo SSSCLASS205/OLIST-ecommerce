@@ -11,10 +11,10 @@ WITH order_payments_bronze AS (
         payment_type,
         payment_installments,
         payment_value,
-        _airbyte_emitted_at
+        _airbyte_extracted_at
     FROM {{ source('BRONZE', 'order_payments_bronze') }}
     {% if is_incremental() %}
-    WHERE _airbyte_emitted_at > (SELECT MAX(_airbyte_emitted_at) FROM {{ this }})
+    WHERE _airbyte_extracted_at > (SELECT MAX(_airbyte_extracted_at) FROM {{ this }})
     {% endif %}
 ),
 
@@ -23,7 +23,7 @@ deduped AS (
     FROM order_payments_bronze
     QUALIFY ROW_NUMBER() OVER (
         PARTITION BY order_id, payment_sequential
-        ORDER BY _airbyte_emitted_at DESC
+        ORDER BY _airbyte_extracted_at DESC
     ) = 1
 ),
 
@@ -34,7 +34,7 @@ transformed AS (
         payment_type,
         payment_installments,
         payment_value,
-        _airbyte_emitted_at,
+        _airbyte_extracted_at,
         CASE
             WHEN payment_installments = 0 THEN 'NONE'
             WHEN payment_installments = 1 THEN 'LOW'
@@ -56,5 +56,5 @@ SELECT
     payment_value,
     level_of_installment,
     installment_monthly_value,
-    _airbyte_emitted_at
+    _airbyte_extracted_at
 FROM transformed

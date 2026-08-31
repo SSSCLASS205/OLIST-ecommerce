@@ -8,7 +8,7 @@ WITH changed_order_items AS (
     SELECT DISTINCT order_id
     FROM {{ ref('order_items_silver') }}
     {% if is_incremental() %}
-    WHERE _airbyte_emitted_at > (SELECT MAX(_airbyte_emitted_at) FROM {{ this }})
+    WHERE _airbyte_extracted_at > (SELECT MAX(_airbyte_extracted_at) FROM {{ this }})
     {% endif %}
 ),
 
@@ -16,7 +16,7 @@ changed_orders AS (
     SELECT DISTINCT order_id
     FROM {{ ref('orders_silver') }}
     {% if is_incremental() %}
-    WHERE _airbyte_emitted_at > (SELECT MAX(_airbyte_emitted_at) FROM {{ this }})
+    WHERE _airbyte_extracted_at > (SELECT MAX(_airbyte_extracted_at) FROM {{ this }})
     {% endif %}
 ),
 
@@ -35,7 +35,7 @@ joined_data AS (
         b.shipping_limit_date,
         b.price,
         b.freight_value,
-        b._airbyte_emitted_at,
+        b._airbyte_extracted_at,
         a.customer_id,
         a.order_status,
         a.order_purchase_timestamp,
@@ -60,7 +60,7 @@ SELECT
     shipping_limit_date,
     price,
     freight_value,
-    _airbyte_emitted_at,
+    _airbyte_extracted_at,
     customer_id,
     order_status,
     order_purchase_timestamp,

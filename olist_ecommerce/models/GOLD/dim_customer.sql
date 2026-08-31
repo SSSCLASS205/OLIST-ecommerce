@@ -13,8 +13,8 @@ WITH changed_customers AS (
 
     {% if is_incremental() %}
 
-    WHERE _airbyte_emitted_at >= (
-        SELECT COALESCE(MAX(_airbyte_emitted_at), '1900-01-01'::timestamp)
+    WHERE _airbyte_extracted_at >= (
+        SELECT COALESCE(MAX(_airbyte_extracted_at), '1900-01-01'::timestamp)
         FROM {{ this }}
     )
 
@@ -31,7 +31,7 @@ final AS (
         s.customer_zip_code_prefix,
         s.customer_city,
         s.customer_state,
-        s._airbyte_emitted_at,
+        s._airbyte_extracted_at,
         s.update_at,
         s.dbt_valid_from,
         COALESCE(s.dbt_valid_to, '9999-12-31'::timestamp) AS dbt_valid_to,
