@@ -1,0 +1,30 @@
+[2026-08-31T14:22:26.554+0000] {local_task_job_runner.py:123} INFO - ::group::Pre task execution logs
+[2026-08-31T14:22:26.579+0000] {taskinstance.py:2613} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: airbyte_to_dbt_pipeline_dev.dbt_deps manual__2026-08-30T20:19:27.948310+00:00 [queued]>
+[2026-08-31T14:22:26.590+0000] {taskinstance.py:2613} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: airbyte_to_dbt_pipeline_dev.dbt_deps manual__2026-08-30T20:19:27.948310+00:00 [queued]>
+[2026-08-31T14:22:26.591+0000] {taskinstance.py:2866} INFO - Starting attempt 3 of 4
+[2026-08-31T14:22:26.606+0000] {taskinstance.py:2889} INFO - Executing <Task(BashOperator): dbt_deps> on 2026-08-30 20:19:27.948310+00:00
+[2026-08-31T14:22:26.611+0000] {standard_task_runner.py:72} INFO - Started process 2588 to run task
+[2026-08-31T14:22:26.615+0000] {standard_task_runner.py:104} INFO - Running: ['***', 'tasks', 'run', 'airbyte_to_dbt_pipeline_dev', 'dbt_deps', 'manual__2026-08-30T20:19:27.948310+00:00', '--job-id', '50', '--raw', '--subdir', 'DAGS_FOLDER/dev/airbyte_to_dbt_dev.py', '--cfg-path', '/tmp/tmp49r0lbxa']
+[2026-08-31T14:22:26.617+0000] {standard_task_runner.py:105} INFO - Job 50: Subtask dbt_deps
+[2026-08-31T14:22:26.686+0000] {task_command.py:467} INFO - Running <TaskInstance: airbyte_to_dbt_pipeline_dev.dbt_deps manual__2026-08-30T20:19:27.948310+00:00 [running]> on host bb0f5e1be277
+[2026-08-31T14:22:26.825+0000] {taskinstance.py:3132} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='data-eng' AIRFLOW_CTX_DAG_ID='airbyte_to_dbt_pipeline_dev' AIRFLOW_CTX_TASK_ID='dbt_deps' AIRFLOW_CTX_EXECUTION_DATE='2026-08-30T20:19:27.948310+00:00' AIRFLOW_CTX_TRY_NUMBER='3' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-08-30T20:19:27.948310+00:00'
+[2026-08-31T14:22:26.828+0000] {taskinstance.py:731} INFO - ::endgroup::
+[2026-08-31T14:22:26.852+0000] {subprocess.py:78} INFO - Tmp dir root location: /tmp
+[2026-08-31T14:22:26.854+0000] {subprocess.py:88} INFO - Running command: ['/usr/bin/bash', '-c', 'cd /tmp/dbt_project_dev/olist_ecommerce && dbt deps --profiles-dir /tmp/.dbt_dev']
+[2026-08-31T14:22:26.869+0000] {subprocess.py:99} INFO - Output:
+[2026-08-31T14:22:31.512+0000] {subprocess.py:106} INFO - [0m14:22:31  Running with dbt=1.12.3
+[2026-08-31T14:22:32.596+0000] {subprocess.py:106} INFO - [0m14:22:32  Installing dbt-labs/dbt_external_tables
+[2026-08-31T14:22:33.458+0000] {subprocess.py:106} INFO - [0m14:22:33  Installed from version 0.12.2
+[2026-08-31T14:22:33.458+0000] {subprocess.py:106} INFO - [0m14:22:33  Updated version available: 0.12.3
+[2026-08-31T14:22:33.460+0000] {subprocess.py:106} INFO - [0m14:22:33  Installing dbt-labs/dbt_utils
+[2026-08-31T14:22:34.016+0000] {subprocess.py:106} INFO - [0m14:22:34  Installed from version 1.3.0
+[2026-08-31T14:22:34.017+0000] {subprocess.py:106} INFO - [0m14:22:34  Updated version available: 1.4.1
+[2026-08-31T14:22:34.019+0000] {subprocess.py:106} INFO - [0m14:22:34
+[2026-08-31T14:22:34.020+0000] {subprocess.py:106} INFO - [0m14:22:34  Updates available for packages: ['dbt-labs/dbt_external_tables', 'dbt-labs/dbt_utils']
+[2026-08-31T14:22:34.020+0000] {subprocess.py:106} INFO - Update your versions in packages.yml, then run dbt deps
+[2026-08-31T14:22:35.222+0000] {subprocess.py:110} INFO - Command exited with return code 0
+[2026-08-31T14:22:35.269+0000] {taskinstance.py:340} INFO - ::group::Post task execution logs
+[2026-08-31T14:22:35.269+0000] {taskinstance.py:352} INFO - Marking task as SUCCESS. dag_id=airbyte_to_dbt_pipeline_dev, task_id=dbt_deps, run_id=manual__2026-08-30T20:19:27.948310+00:00, execution_date=20260830T201927, start_date=20260831T142226, end_date=20260831T142235
+[2026-08-31T14:22:35.309+0000] {local_task_job_runner.py:266} INFO - Task exited with return code 0
+[2026-08-31T14:22:35.342+0000] {taskinstance.py:3895} INFO - 1 downstream tasks scheduled from follow-on schedule check
+[2026-08-31T14:22:35.346+0000] {local_task_job_runner.py:245} INFO - ::endgroup::

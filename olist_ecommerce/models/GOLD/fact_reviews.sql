@@ -11,11 +11,11 @@ WITH silver_order_reviews AS (
         review_score,
         review_creation_date,
         review_answer_timestamp,
-        _airbyte_emitted_at,
+        _airbyte_extracted_at,
         update_at
     FROM {{ ref('order_reviews_silver') }}
     {% if is_incremental() %}
-        WHERE _airbyte_emitted_at > (SELECT MAX(_airbyte_emitted_at) FROM {{ this }})
+        WHERE _airbyte_extracted_at > (SELECT MAX(_airbyte_extracted_at) FROM {{ this }})
     {% endif %}
 ),
 
@@ -26,7 +26,7 @@ joined_data AS (
         a.review_score,
         a.review_creation_date,
         a.review_answer_timestamp,
-        a._airbyte_emitted_at,
+        a._airbyte_extracted_at,
         a.update_at ,
         b.customer_id
     FROM silver_order_reviews a
@@ -41,6 +41,6 @@ SELECT
     review_score,
     review_answer_timestamp,
     COALESCE(TO_NUMBER(TO_CHAR(review_creation_date::DATE, 'YYYYMMDD')), 19000101) AS review_creation_date_id,    DATEDIFF(hour, review_creation_date, review_answer_timestamp) AS hours_to_answer,
-    _airbyte_emitted_at,
+    _airbyte_extracted_at,
     update_at
 FROM joined_data

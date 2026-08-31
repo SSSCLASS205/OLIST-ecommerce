@@ -1,0 +1,104 @@
+[2026-08-31T13:31:52.529+0000] {local_task_job_runner.py:123} INFO - ::group::Pre task execution logs
+[2026-08-31T13:31:52.564+0000] {taskinstance.py:2613} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: airbyte_to_dbt_pipeline_dev.stage_external_sources manual__2026-08-30T20:19:27.948310+00:00 [queued]>
+[2026-08-31T13:31:52.576+0000] {taskinstance.py:2613} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: airbyte_to_dbt_pipeline_dev.stage_external_sources manual__2026-08-30T20:19:27.948310+00:00 [queued]>
+[2026-08-31T13:31:52.576+0000] {taskinstance.py:2866} INFO - Starting attempt 2 of 2
+[2026-08-31T13:31:52.600+0000] {taskinstance.py:2889} INFO - Executing <Task(BashOperator): stage_external_sources> on 2026-08-30 20:19:27.948310+00:00
+[2026-08-31T13:31:52.605+0000] {standard_task_runner.py:72} INFO - Started process 1515 to run task
+[2026-08-31T13:31:52.609+0000] {standard_task_runner.py:104} INFO - Running: ['***', 'tasks', 'run', 'airbyte_to_dbt_pipeline_dev', 'stage_external_sources', 'manual__2026-08-30T20:19:27.948310+00:00', '--job-id', '39', '--raw', '--subdir', 'DAGS_FOLDER/dev/airbyte_to_dbt_dev.py', '--cfg-path', '/tmp/tmprvthmhmc']
+[2026-08-31T13:31:52.613+0000] {standard_task_runner.py:105} INFO - Job 39: Subtask stage_external_sources
+[2026-08-31T13:31:52.709+0000] {task_command.py:467} INFO - Running <TaskInstance: airbyte_to_dbt_pipeline_dev.stage_external_sources manual__2026-08-30T20:19:27.948310+00:00 [running]> on host bb0f5e1be277
+[2026-08-31T13:31:52.887+0000] {taskinstance.py:3132} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='data-eng' AIRFLOW_CTX_DAG_ID='airbyte_to_dbt_pipeline_dev' AIRFLOW_CTX_TASK_ID='stage_external_sources' AIRFLOW_CTX_EXECUTION_DATE='2026-08-30T20:19:27.948310+00:00' AIRFLOW_CTX_TRY_NUMBER='2' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-08-30T20:19:27.948310+00:00'
+[2026-08-31T13:31:52.890+0000] {taskinstance.py:731} INFO - ::endgroup::
+[2026-08-31T13:31:52.916+0000] {subprocess.py:78} INFO - Tmp dir root location: /tmp
+[2026-08-31T13:31:52.917+0000] {subprocess.py:88} INFO - Running command: ['/usr/bin/bash', '-c', 'cd /tmp/dbt_project_dev/olist_ecommerce && dbt run-operation stage_external_sources --profiles-dir /tmp/.dbt_dev --target dev']
+[2026-08-31T13:31:52.932+0000] {subprocess.py:99} INFO - Output:
+[2026-08-31T13:31:56.261+0000] {subprocess.py:106} INFO - [0m13:31:56  Running with dbt=1.12.3
+[2026-08-31T13:31:57.706+0000] {subprocess.py:106} INFO - [0m13:31:57  Registered adapter: snowflake=1.8.4
+[2026-08-31T13:31:58.091+0000] {subprocess.py:106} INFO - [0m13:31:58  Unable to do partial parsing because of a version mismatch
+[2026-08-31T13:31:58.112+0000] {subprocess.py:106} INFO - [0m13:31:58  [[33mWARNING[0m][CustomKeyInObjectDeprecation]: Deprecated functionality
+[2026-08-31T13:31:58.113+0000] {subprocess.py:106} INFO - Custom key `expression` found at `sources[0].tables[0].columns[0]` in file
+[2026-08-31T13:31:58.113+0000] {subprocess.py:106} INFO - `models/BRONZE/my_external_tables.yml`. This may mean the key is a typo, or is
+[2026-08-31T13:31:58.113+0000] {subprocess.py:106} INFO - simply not a key supported by the object.
+[2026-08-31T13:32:01.113+0000] {subprocess.py:106} INFO - [0m13:32:01  [[31mERROR[0m]: Encountered an error:
+[2026-08-31T13:32:01.113+0000] {subprocess.py:106} INFO - Parsing Error
+[2026-08-31T13:32:01.114+0000] {subprocess.py:106} INFO -   Invalid sources config given in models/BRONZE/my_external_tables.yml @ sources: {'name': 'BRONZE', 'description': 'Raw Olist marketplace data synced via Airbyte from RDS to S3 in Parquet format', 'database': 'OLIST_warehouse', 'schema': 'BRONZE', 'external': {'location': '@staging/raw/', 'file_format': '( type = parquet )', 'auto_refresh': True}, 'tables': [{'name': 'orders_bronze', 'description': 'Core order lifecycle and status tracking', 'external': {'location': '@staging/raw/orders/'}, 'columns': [{'name': '_airbyte_emitted_at', 'data_type': 'timestamp', 'expression': '$1:_airbyte_emitted_at::timestamp'}, {'name': 'order_id', 'data_type': 'varchar', 'expression': '$1:_airbyte_data:order_id::varchar'}, {'name': 'customer_id', 'data_type': 'varchar', 'expression': '$1:_airbyte_data:customer_id::varchar'}, {'name': 'order_status', 'data_type': 'varchar', 'expression': '$1:_airbyte_data:order_status::varchar'}, {'name': 'order_purchase_timestamp', 'data_type': 'timestamp', 'expression': '$1:_airbyte_data:order_purchase_timestamp::timestamp'}, {'name': 'order_approved_at', 'data_type': 'timestamp', 'expression': '$1:_airbyte_data:order_approved_at::timestamp'}, {'name': 'order_delivered_carrier_date', 'data_type': 'timestamp', 'expression': '$1:_airbyte_data:order_delivered_carrier_date::timestamp'}, {'name': 'order_delivered_customer_date', 'data_type': 'timestamp', 'expression': '$1:_airbyte_data:order_delivered_customer_date::timestamp'}, {'name': 'order_estimated_delivery_date', 'data_type': 'timestamp', 'expression': '$1:_airbyte_data:order_estimated_delivery_date::timestamp'}]}, {'name': 'order_items_bronze', 'description': 'Line-item details for items contained within an order', 'external': {'location': '@staging/raw/order_items/'}, 'columns': [{'name': '_airbyte_emitted_at', 'data_type': 'timestamp', 'expression': '$1:_airbyte_emitted_at::timestamp'}, {'name': 'order_id', 'data_type': 'varchar', 'expression': '$1:_airbyte_data:order_id::varchar'}, {'name': 'order_item_id', 'data_type': 'number', 'expression': '$1:_airbyte_data:order_item_id::number'}, {'name': 'product_id', 'data_type': 'varchar', 'expression': '$1:_airbyte_data:product_id::varchar'}, {'name': 'seller_id', 'data_type': 'varchar', 'expression': '$1:_airbyte_data:seller_id::varchar'}, {'name': 'shipping_limit_date', 'data_type': 'timestamp', 'expression': '$1:_airbyte_data:shipping_limit_date::timestamp'}, {'name': 'price', 'data_type': 'float', 'expression': '$1:_airbyte_data:price::float'}, {'name': 'freight_value', 'data_type': 'float', 'expression': '$1:_airbyte_data:freight_value::float'}]}, {'name': 'order_payments_bronze', 'description': 'Payment details split by payment option', 'external': {'location': '@staging/raw/order_payments/'}, 'columns': [{'name': '_airbyte_emitted_at', 'data_type': 'timestamp', 'expression': '$1:_airbyte_emitted_at::timestamp'}, {'name': 'order_id', 'data_type': 'varchar', 'expression': '$1:_airbyte_data:order_id::varchar'}, {'name': 'payment_sequential', 'data_type': 'number', 'expression': '$1:_airbyte_data:payment_sequential::number'}, {'name': 'payment_type', 'data_type': 'varchar', 'expression': '$1:_airbyte_data:payment_type::varchar'}, {'name': 'payment_installments', 'data_type': 'number', 'expression': '$1:_airbyte_data:payment_installments::number'}, {'name': 'payment_value', 'data_type': 'float', 'expression': '$1:_airbyte_data:payment_value::float'}]}, {'name': 'order_reviews_bronze', 'description': 'Customer satisfaction feedback data', 'external': {'location': '@staging/raw/order_reviews/'}, 'columns': [{'name': '_airbyte_emitted_at', 'data_type': 'timestamp', 'expression': '$1:_airbyte_emitted_at::timestamp'}, {'name': 'review_id', 'data_type': 'varchar', 'expression': '$1:_airbyte_data:review_id::varchar'}, {'name': 'order_id', 'data_type': 'varchar', 'expression': '$1:_airbyte_data:order_id::varchar'}, {'name': 'review_score', 'data_type': 'number', 'expression': '$1:_airbyte_data:review_score::number'}, {'name': 'review_comment_title', 'data_type': 'varchar', 'expression': '$1:_airbyte_data:review_comment_title::varchar'}, {'name': 'review_comment_message', 'data_type': 'varchar', 'expression': '$1:_airbyte_data:review_comment_message::varchar'}, {'name': 'review_creation_date', 'data_type': 'timestamp', 'expression': '$1:_airbyte_data:review_creation_date::timestamp'}, {'name': 'review_answer_timestamp', 'data_type': 'timestamp', 'expression': '$1:_airbyte_data:review_answer_timestamp::timestamp'}]}, {'name': 'customers_bronze', 'description': 'Customer demographics and geographical mapping info', 'external': {'location': '@staging/raw/customers/'}, 'columns': [{'name': '_airbyte_emitted_at', 'data_type': 'timestamp', 'expression': '$1:_airbyte_emitted_at::timestamp'}, {'name': 'customer_id', 'data_type': 'varchar', 'expression': '$1:_airbyte_data:customer_id::varchar'}, {'name': 'customer_unique_id', 'data_type': 'varchar', 'expression': '$1:_airbyte_data:customer_unique_id::varchar'}, {'name': 'customer_zip_code_prefix', 'data_type': 'varchar', 'expression': '$1:_airbyte_data:customer_zip_code_prefix::varchar'}, {'name': 'customer_city', 'data_type': 'varchar', 'expression': '$1:_airbyte_data:customer_city::varchar'}, {'name': 'customer_state', 'data_type': 'varchar', 'expression': '$1:_airbyte_data:customer_state::varchar'}]}, {'name': 'products_bronze', 'description': 'Product catalog meta-data including dimensions', 'external': {'location': '@staging/raw/products/'}, 'columns': [{'name': '_airbyte_emitted_at', 'data_type': 'timestamp', 'expression': '$1:_airbyte_emitted_at::timestamp'}, {'name': 'product_id', 'data_type': 'varchar', 'expression': '$1:_airbyte_data:product_id::varchar'}, {'name': 'product_category_name', 'data_type': 'varchar', 'expression': '$1:_airbyte_data:product_category_name::varchar'}, {'name': 'product_name_lenght', 'data_type': 'number', 'expression': '$1:_airbyte_data:product_name_lenght::number'}, {'name': 'product_description_lenght', 'data_type': 'number', 'expression': '$1:_airbyte_data:product_description_lenght::number'}, {'name': 'product_photos_qty', 'data_type': 'number', 'expression': '$1:_airbyte_data:product_photos_qty::number'}, {'name': 'product_weight_g', 'data_type': 'number', 'expression': '$1:_airbyte_data:product_weight_g::number'}, {'name': 'product_length_cm', 'data_type': 'number', 'expression': '$1:_airbyte_data:product_length_cm::number'}, {'name': 'product_height_cm', 'data_type': 'number', 'expression': '$1:_airbyte_data:product_height_cm::number'}, {'name': 'product_width_cm', 'data_type': 'number', 'expression': '$1:_airbyte_data:product_width_cm::number'}]}, {'name': 'sellers_bronze', 'description': 'Merchant/Seller demographic locations', 'external': {'location': '@staging/raw/sellers/'}, 'columns': [{'name': '_airbyte_emitted_at', 'data_type': 'timestamp', 'expression': '$1:_airbyte_emitted_at::timestamp'}, {'name': 'seller_id', 'data_type': 'varchar', 'expression': '$1:_airbyte_data:seller_id::varchar'}, {'name': 'seller_zip_code_prefix', 'data_type': 'varchar', 'expression': '$1:_airbyte_data:seller_zip_code_prefix::varchar'}, {'name': 'seller_city', 'data_type': 'varchar', 'expression': '$1:_airbyte_data:seller_city::varchar'}, {'name': 'seller_state', 'data_type': 'varchar', 'expression': '$1:_airbyte_data:seller_state::varchar'}]}, {'name': 'geolocation_bronze', 'description': 'Brazilian zip codes with latitude/longitude coordinates', 'external': {'location': '@staging/raw/geolocation/'}, 'columns': [{'name': '_airbyte_emitted_at', 'data_type': 'timestamp', 'expression': '$1:_airbyte_emitted_at::timestamp'}, {'name': 'geolocation_zip_code_prefix', 'data_type': 'varchar', 'expression': '$1:_airbyte_data:geolocation_zip_code_prefix::varchar'}, {'name': 'geolocation_lat', 'data_type': 'float', 'expression': '$1:_airbyte_data:geolocation_lat::float'}, {'name': 'geolocation_lng', 'data_type': 'float', 'expression': '$1:_airbyte_data:geolocation_lng::float'}, {'name': 'geolocation_city', 'data_type': 'varchar', 'expression': '$1:_airbyte_data:geolocation_city::varchar'}, {'name': 'geolocation_state', 'data_type': 'varchar', 'expression': '$1:_airbyte_data:geolocation_state::varchar'}]}, {'name': 'product_category_name_translation_bronze', 'description': 'Mapping of Portuguese category names to English', 'external': {'location': '@staging/raw/product_category_name_translation/'}, 'columns': [{'name': '_airbyte_emitted_at', 'data_type': 'timestamp', 'expression': '$1:_airbyte_emitted_at::timestamp'}, {'name': 'product_category_name', 'data_type': 'varchar', 'expression': '$1:_airbyte_data:product_category_name::varchar'}, {'name': 'product_category_name_english', 'data_type': 'varchar', 'expression': '$1:_airbyte_data:product_category_name_english::varchar'}]}]} - at path []: Additional properties are not allowed ('external' was unexpected)
+[2026-08-31T13:32:01.114+0000] {subprocess.py:106} INFO - [0m13:32:01  [[33mWARNING[0m][DeprecationsSummary]: Deprecated functionality
+[2026-08-31T13:32:01.114+0000] {subprocess.py:106} INFO - Summary of encountered deprecations:
+[2026-08-31T13:32:01.114+0000] {subprocess.py:106} INFO - - CustomKeyInObjectDeprecation: 62 occurrences
+[2026-08-31T13:32:01.115+0000] {subprocess.py:106} INFO - To see all deprecation instances instead of just the first occurrence of each,
+[2026-08-31T13:32:01.115+0000] {subprocess.py:106} INFO - run command again with the `--show-all-deprecations` flag. You may also need to
+[2026-08-31T13:32:01.115+0000] {subprocess.py:106} INFO - run with `--no-partial-parse` as some deprecations are only encountered during
+[2026-08-31T13:32:01.115+0000] {subprocess.py:106} INFO - parsing.
+[2026-08-31T13:32:02.535+0000] {subprocess.py:110} INFO - Command exited with return code 2
+[2026-08-31T13:32:02.553+0000] {taskinstance.py:3311} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/taskinstance.py", line 767, in _execute_task
+    result = _execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/taskinstance.py", line 733, in _execute_callable
+    return ExecutionCallableRunner(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/utils/operator_helpers.py", line 252, in run
+    return self.func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/baseoperator.py", line 417, in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/operators/bash.py", line 276, in execute
+    raise AirflowException(
+airflow.exceptions.AirflowException: Bash command failed. The command returned a non-zero exit code 2.
+[2026-08-31T13:32:02.557+0000] {taskinstance.py:1225} INFO - Marking task as FAILED. dag_id=airbyte_to_dbt_pipeline_dev, task_id=stage_external_sources, run_id=manual__2026-08-30T20:19:27.948310+00:00, execution_date=20260830T201927, start_date=20260831T133152, end_date=20260831T133202
+[2026-08-31T13:32:02.573+0000] {taskinstance.py:340} INFO - ::group::Post task execution logs
+[2026-08-31T13:32:02.574+0000] {standard_task_runner.py:124} ERROR - Failed to execute job 39 for task stage_external_sources (Bash command failed. The command returned a non-zero exit code 2.; 1515)
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/task/task_runner/standard_task_runner.py", line 117, in _start_by_fork
+    ret = args.func(args, dag=self.dag)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/cli/cli_config.py", line 49, in command
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/utils/cli.py", line 116, in wrapper
+    return f(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/cli/commands/task_command.py", line 483, in task_run
+    task_return_code = _run_task_by_selected_method(args, _dag, ti)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/cli/commands/task_command.py", line 256, in _run_task_by_selected_method
+    return _run_raw_task(args, ti)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/cli/commands/task_command.py", line 341, in _run_raw_task
+    return ti._run_raw_task(
+           ^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/utils/session.py", line 97, in wrapper
+    return func(*args, session=session, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/taskinstance.py", line 3005, in _run_raw_task
+    return _run_raw_task(
+           ^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/taskinstance.py", line 273, in _run_raw_task
+    TaskInstance._execute_task_with_callbacks(
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/taskinstance.py", line 3159, in _execute_task_with_callbacks
+    result = self._execute_task(context, task_orig)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/taskinstance.py", line 3183, in _execute_task
+    return _execute_task(self, context, task_orig)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/taskinstance.py", line 767, in _execute_task
+    result = _execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/taskinstance.py", line 733, in _execute_callable
+    return ExecutionCallableRunner(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/utils/operator_helpers.py", line 252, in run
+    return self.func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/models/baseoperator.py", line 417, in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.11/site-packages/airflow/operators/bash.py", line 276, in execute
+    raise AirflowException(
+airflow.exceptions.AirflowException: Bash command failed. The command returned a non-zero exit code 2.
+[2026-08-31T13:32:02.588+0000] {local_task_job_runner.py:266} INFO - Task exited with return code 1
+[2026-08-31T13:32:02.615+0000] {standard_task_runner.py:217} INFO - Process not found (most likely exited), stop collecting metrics
+[2026-08-31T13:32:02.617+0000] {taskinstance.py:3895} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2026-08-31T13:32:02.623+0000] {local_task_job_runner.py:245} INFO - ::endgroup::

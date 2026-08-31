@@ -16,12 +16,12 @@ WITH bronze_reviews AS (
         review_comment_message,
         review_creation_date,
         review_answer_timestamp,
-        _airbyte_emitted_at,
+        _airbyte_extracted_at,
         update_at
     FROM {{ source('BRONZE', 'order_reviews_bronze') }}
     
     {% if is_incremental() %}
-        WHERE _airbyte_emitted_at > (SELECT MAX(_airbyte_emitted_at) FROM {{ this }})
+        WHERE _airbyte_extracted_at > (SELECT MAX(_airbyte_extracted_at) FROM {{ this }})
     {% endif %}
 ),
 
@@ -32,7 +32,7 @@ deduped_reviews AS (
     QUALIFY ROW_NUMBER() OVER (
         PARTITION BY review_id
         ORDER BY update_at DESC ,
-        _airbyte_emitted_at DESC) = 1
+        _airbyte_extracted_at DESC) = 1
 )
 
 SELECT 
@@ -43,6 +43,6 @@ SELECT
     review_comment_message,
     review_creation_date,
     review_answer_timestamp,
-    _airbyte_emitted_at,
+    _airbyte_extracted_at,
     update_at
 FROM deduped_reviews

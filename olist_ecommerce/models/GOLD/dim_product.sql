@@ -10,5 +10,5 @@
 SELECT * 
 FROM {{ref("product_silver")}}
 {%if is_incremental()%}
-    WHERE _airbyte_emitted_at >= (SELECT MAX(_airbyte_emitted_at) FROM {{this}}) 
+    WHERE _airbyte_extracted_at >= (SELECT MAX(_airbyte_extracted_at) FROM {{this}}) 
 {%endif%}

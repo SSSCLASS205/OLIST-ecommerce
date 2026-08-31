@@ -164,12 +164,17 @@ def make_fetch_repo(get_github_cfg, dbt_project_dir: str):
         os.makedirs(ssh_dir, exist_ok=True, mode=0o700)
         key_path = os.path.join(ssh_dir, "deploy_key")
 
-        with open(key_path, "w") as f:
-            f.write(gh["private_key"])
+        private_key = gh["private_key"].replace("\r\n", "\n").replace("\r", "\n")
+        if not private_key.endswith("\n"):
+            private_key += "\n"
+
+        with open(key_path, "w", newline="\n") as f:
+            f.write(private_key)
+
         os.chmod(key_path, 0o600)
 
         git_ssh_cmd = (
-            f"ssh -i {key_path} -o StrictHostKeyChecking=accept-new "
+            f"ssh -vvv -i {key_path} -o StrictHostKeyChecking=no "
             f"-o UserKnownHostsFile=/tmp/.ssh/known_hosts"
         )
         os.environ["GIT_SSH_COMMAND"] = git_ssh_cmd
@@ -193,7 +198,7 @@ def make_write_profiles(get_snowflake_cfg, dbt_target: str, dbt_schema: str, pro
     def _write_profiles(**context):
         sf = get_snowflake_cfg()
         os.makedirs(profiles_dir, exist_ok=True)
-
+        print(repr(sf['password']))
         profiles_yml = f"""
 olist_ecommerce:
   target: {dbt_target}

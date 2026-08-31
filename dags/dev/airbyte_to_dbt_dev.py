@@ -19,33 +19,33 @@ from common.airbyte_dbt_common import (
 DBT_PROJECT_DIR = "/tmp/dbt_project_dev"
 DBT_PROFILES_DIR = "/tmp/.dbt_dev"
 DBT_TARGET = "dev"
-DBT_SCHEMA = "DEV_GOLD"
+DBT_SCHEMA = "DEV"
 
 
 def get_airbyte_cfg():
     return {
-        "host": Variable.get("airbyte_dev_host", default_var="http://host.docker.internal:8000"),
-        "workspace_id": Variable.get("airbyte_dev_workspace_id"),
-        "client_id": Variable.get("airbyte_dev_client_id"),
-        "client_secret": Variable.get("airbyte_dev_client_secret"),
+        "host": Variable.get("airbyte_dev_host", default_var="http://172.21.0.2:80"),
+        "workspace_id": Variable.get("workspace_id"),
+        "client_id": Variable.get("client_id"),
+        "client_secret": Variable.get("client_secret"),
     }
 
 
 def get_github_cfg():
     return {
-        "repo_url": Variable.get("github_dbt_repo_url"),
-        "private_key": Variable.get("github_dbt_deploy_key"),
+        "repo_url": Variable.get("repo_url"),
+        "private_key": Variable.get("private_key"),
     }
 
 
 def get_snowflake_cfg():
     return {
-        "account": Variable.get("snowflake_dev_account"),
-        "user": Variable.get("snowflake_dev_user"),
-        "password": Variable.get("snowflake_dev_password"),
-        "role": Variable.get("snowflake_dev_role"),
-        "warehouse": Variable.get("snowflake_dev_warehouse"),
-        "database": Variable.get("snowflake_dev_database"),
+        "account": Variable.get("account"),
+        "user": Variable.get("user"),
+        "password": Variable.get("password"),
+        "role": Variable.get("role"),
+        "warehouse": Variable.get("warehouse"),
+        "database": Variable.get("database"),
     }
 
 

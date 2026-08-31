@@ -1,0 +1,119 @@
+[2026-08-31T16:11:43.028+0000] {local_task_job_runner.py:123} INFO - ::group::Pre task execution logs
+[2026-08-31T16:11:43.078+0000] {taskinstance.py:2613} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: airbyte_to_dbt_pipeline_dev.wait_for_syncs manual__2026-08-31T16:11:25.275489+00:00 [queued]>
+[2026-08-31T16:11:43.095+0000] {taskinstance.py:2613} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: airbyte_to_dbt_pipeline_dev.wait_for_syncs manual__2026-08-31T16:11:25.275489+00:00 [queued]>
+[2026-08-31T16:11:43.095+0000] {taskinstance.py:2866} INFO - Starting attempt 1 of 2
+[2026-08-31T16:11:43.122+0000] {taskinstance.py:2889} INFO - Executing <Task(PythonOperator): wait_for_syncs> on 2026-08-31 16:11:25.275489+00:00
+[2026-08-31T16:11:43.129+0000] {standard_task_runner.py:72} INFO - Started process 4932 to run task
+[2026-08-31T16:11:43.134+0000] {standard_task_runner.py:104} INFO - Running: ['***', 'tasks', 'run', 'airbyte_to_dbt_pipeline_dev', 'wait_for_syncs', 'manual__2026-08-31T16:11:25.275489+00:00', '--job-id', '71', '--raw', '--subdir', 'DAGS_FOLDER/dev/airbyte_to_dbt_dev.py', '--cfg-path', '/tmp/tmp968jk3mx']
+[2026-08-31T16:11:43.138+0000] {standard_task_runner.py:105} INFO - Job 71: Subtask wait_for_syncs
+[2026-08-31T16:11:43.250+0000] {task_command.py:467} INFO - Running <TaskInstance: airbyte_to_dbt_pipeline_dev.wait_for_syncs manual__2026-08-31T16:11:25.275489+00:00 [running]> on host bb0f5e1be277
+[2026-08-31T16:11:43.474+0000] {taskinstance.py:3132} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='data-eng' AIRFLOW_CTX_DAG_ID='airbyte_to_dbt_pipeline_dev' AIRFLOW_CTX_TASK_ID='wait_for_syncs' AIRFLOW_CTX_EXECUTION_DATE='2026-08-31T16:11:25.275489+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-08-31T16:11:25.275489+00:00'
+[2026-08-31T16:11:43.475+0000] {taskinstance.py:731} INFO - ::endgroup::
+[2026-08-31T16:11:43.776+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:11:43.776+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:12:13.825+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:12:13.826+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:12:43.850+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:12:43.851+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:13:13.874+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:13:13.874+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:13:43.991+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:13:43.991+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:14:14.063+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:14:14.063+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:14:44.178+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:14:44.180+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:15:14.436+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:15:14.440+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:15:44.504+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:15:44.504+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:16:14.567+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:16:14.567+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:16:44.677+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:16:44.678+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:17:14.752+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:17:14.752+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:17:44.870+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:17:44.871+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:18:14.933+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:18:14.933+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:18:45.005+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:18:45.005+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:19:15.064+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:19:15.064+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:19:45.125+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:19:45.126+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:20:15.204+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:20:15.204+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:20:45.290+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:20:45.290+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:21:15.425+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:21:15.425+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:21:45.494+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:21:45.494+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:22:15.566+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:22:15.566+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:22:45.638+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:22:45.639+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:23:15.706+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:23:15.707+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:23:45.766+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:23:45.766+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:24:15.839+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:24:15.839+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:24:45.901+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:24:45.902+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:25:15.962+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:25:15.963+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:25:46.058+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:25:46.058+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:26:16.115+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:26:16.115+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:26:46.183+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:26:46.183+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:27:16.260+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:27:16.261+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:27:46.319+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:27:46.320+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:28:16.375+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:28:16.375+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:28:46.429+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:28:46.429+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:29:16.486+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:29:16.486+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:29:46.551+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:29:46.551+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:30:16.608+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:30:16.609+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:30:46.702+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:30:46.702+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:31:16.767+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:31:16.768+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:31:46.837+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:31:46.838+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:32:16.921+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:32:16.921+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:32:46.987+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:32:46.987+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:33:17.045+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:33:17.046+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:33:47.115+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:33:47.115+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:34:17.194+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:34:17.195+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:34:47.260+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:34:47.260+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:35:17.337+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:35:17.337+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:35:47.390+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:35:47.391+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:36:17.449+0000] {logging_mixin.py:190} INFO - Job 6: running
+[2026-08-31T16:36:17.450+0000] {logging_mixin.py:190} INFO - Waiting for jobs: {6} — sleeping 30s
+[2026-08-31T16:36:47.525+0000] {logging_mixin.py:190} INFO - Job 6: succeeded
+[2026-08-31T16:36:47.525+0000] {logging_mixin.py:190} INFO - All Airbyte sync jobs completed successfully.
+[2026-08-31T16:36:47.526+0000] {python.py:240} INFO - Done. Returned value was: None
+[2026-08-31T16:36:47.544+0000] {taskinstance.py:340} INFO - ::group::Post task execution logs
+[2026-08-31T16:36:47.544+0000] {taskinstance.py:352} INFO - Marking task as SUCCESS. dag_id=airbyte_to_dbt_pipeline_dev, task_id=wait_for_syncs, run_id=manual__2026-08-31T16:11:25.275489+00:00, execution_date=20260831T161125, start_date=20260831T161143, end_date=20260831T163647
+[2026-08-31T16:36:47.585+0000] {local_task_job_runner.py:266} INFO - Task exited with return code 0
+[2026-08-31T16:36:47.629+0000] {taskinstance.py:3895} INFO - 1 downstream tasks scheduled from follow-on schedule check
+[2026-08-31T16:36:47.633+0000] {local_task_job_runner.py:245} INFO - ::endgroup::

@@ -16,11 +16,11 @@ WITH dedup_seller AS (
         seller_zip_code_prefix,
         seller_city,
         seller_state,
-        _airbyte_emitted_at,
+        _airbyte_extracted_at,
         update_at,
         ROW_NUMBER() OVER (
             PARTITION BY seller_id 
-            ORDER BY update_at DESC, _airbyte_emitted_at DESC
+            ORDER BY update_at DESC, _airbyte_extracted_at DESC
         ) AS rnk 
     FROM {{ source('BRONZE', 'sellers_bronze') }}
 ),
@@ -31,7 +31,7 @@ final_dedup AS (
         seller_zip_code_prefix,
         seller_city,
         seller_state,
-        _airbyte_emitted_at,
+        _airbyte_extracted_at,
         update_at
     FROM dedup_seller
     WHERE rnk = 1
@@ -42,7 +42,7 @@ SELECT
     seller_zip_code_prefix,
     seller_city,
     seller_state,
-    _airbyte_emitted_at,
+    _airbyte_extracted_at,
     update_at
 FROM final_dedup
 

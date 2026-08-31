@@ -1,0 +1,69 @@
+[2026-08-31T18:15:23.428+0000] {local_task_job_runner.py:123} INFO - ::group::Pre task execution logs
+[2026-08-31T18:15:23.466+0000] {taskinstance.py:2613} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: airbyte_to_dbt_pipeline_dev.stage_external_sources manual__2026-08-31T17:53:11.656222+00:00 [queued]>
+[2026-08-31T18:15:23.480+0000] {taskinstance.py:2613} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: airbyte_to_dbt_pipeline_dev.stage_external_sources manual__2026-08-31T17:53:11.656222+00:00 [queued]>
+[2026-08-31T18:15:23.480+0000] {taskinstance.py:2866} INFO - Starting attempt 1 of 2
+[2026-08-31T18:15:23.501+0000] {taskinstance.py:2889} INFO - Executing <Task(BashOperator): stage_external_sources> on 2026-08-31 17:53:11.656222+00:00
+[2026-08-31T18:15:23.508+0000] {standard_task_runner.py:72} INFO - Started process 7453 to run task
+[2026-08-31T18:15:23.512+0000] {standard_task_runner.py:104} INFO - Running: ['***', 'tasks', 'run', 'airbyte_to_dbt_pipeline_dev', 'stage_external_sources', 'manual__2026-08-31T17:53:11.656222+00:00', '--job-id', '83', '--raw', '--subdir', 'DAGS_FOLDER/dev/airbyte_to_dbt_dev.py', '--cfg-path', '/tmp/tmp1plpibaw']
+[2026-08-31T18:15:23.515+0000] {standard_task_runner.py:105} INFO - Job 83: Subtask stage_external_sources
+[2026-08-31T18:15:23.592+0000] {task_command.py:467} INFO - Running <TaskInstance: airbyte_to_dbt_pipeline_dev.stage_external_sources manual__2026-08-31T17:53:11.656222+00:00 [running]> on host bb0f5e1be277
+[2026-08-31T18:15:23.728+0000] {taskinstance.py:3132} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='data-eng' AIRFLOW_CTX_DAG_ID='airbyte_to_dbt_pipeline_dev' AIRFLOW_CTX_TASK_ID='stage_external_sources' AIRFLOW_CTX_EXECUTION_DATE='2026-08-31T17:53:11.656222+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-08-31T17:53:11.656222+00:00'
+[2026-08-31T18:15:23.729+0000] {taskinstance.py:731} INFO - ::endgroup::
+[2026-08-31T18:15:23.746+0000] {subprocess.py:78} INFO - Tmp dir root location: /tmp
+[2026-08-31T18:15:23.747+0000] {subprocess.py:88} INFO - Running command: ['/usr/bin/bash', '-c', 'cd /tmp/dbt_project_dev/olist_ecommerce && dbt run-operation stage_external_sources --profiles-dir /tmp/.dbt_dev --target dev']
+[2026-08-31T18:15:23.757+0000] {subprocess.py:99} INFO - Output:
+[2026-08-31T18:15:27.104+0000] {subprocess.py:106} INFO - [0m18:15:27  Running with dbt=1.12.3
+[2026-08-31T18:15:29.623+0000] {subprocess.py:106} INFO - [0m18:15:29  Registered adapter: snowflake=1.8.4
+[2026-08-31T18:15:29.988+0000] {subprocess.py:106} INFO - [0m18:15:29  Unable to do partial parsing because of a version mismatch
+[2026-08-31T18:15:30.022+0000] {subprocess.py:106} INFO - [0m18:15:30  [[33mWARNING[0m][CustomKeyInObjectDeprecation]: Deprecated functionality
+[2026-08-31T18:15:30.022+0000] {subprocess.py:106} INFO - Custom key `expression` found at `sources[0].tables[0].columns[0]` in file
+[2026-08-31T18:15:30.022+0000] {subprocess.py:106} INFO - `models/BRONZE/my_external_tables.yml`. This may mean the key is a typo, or is
+[2026-08-31T18:15:30.022+0000] {subprocess.py:106} INFO - simply not a key supported by the object.
+[2026-08-31T18:15:33.994+0000] {subprocess.py:106} INFO - [0m18:15:33  [[33mWARNING[0m][MissingArgumentsPropertyInGenericTestDeprecation]: Deprecated
+[2026-08-31T18:15:33.995+0000] {subprocess.py:106} INFO - functionality
+[2026-08-31T18:15:33.995+0000] {subprocess.py:106} INFO - Found top-level arguments to test `dbt_utils.unique_combination_of_columns`
+[2026-08-31T18:15:33.995+0000] {subprocess.py:106} INFO - defined on 'dim_order_attributes' in package 'olist_ecommerce'
+[2026-08-31T18:15:33.995+0000] {subprocess.py:106} INFO - (models/GOLD/_gold__models.yml). Arguments to generic tests should be nested
+[2026-08-31T18:15:33.995+0000] {subprocess.py:106} INFO - under the `arguments` property.
+[2026-08-31T18:15:35.056+0000] {subprocess.py:106} INFO - [0m18:15:35  Found 16 models, 2 snapshots, 71 data tests, 1 seed, 9 sources, 671 macros, 26 unit tests
+[2026-08-31T18:15:35.078+0000] {subprocess.py:106} INFO - [0m18:15:35  1 of 9 START external source DEV_BRONZE.orders_bronze
+[2026-08-31T18:15:37.675+0000] {subprocess.py:106} INFO - [0m18:15:37  1 of 9 (1) alter external table OLIST_WAREHOUSE.DEV_BRONZE.orders_bronze refresh;        co...
+[2026-08-31T18:15:40.529+0000] {subprocess.py:106} INFO - [0m18:15:40  1 of 9 (1) SUCCESS 0
+[2026-08-31T18:15:40.533+0000] {subprocess.py:106} INFO - [0m18:15:40  2 of 9 START external source DEV_BRONZE.order_items_bronze
+[2026-08-31T18:15:40.535+0000] {subprocess.py:106} INFO - [0m18:15:40  2 of 9 (1) alter external table OLIST_WAREHOUSE.DEV_BRONZE.order_items_bronze refresh;     ...
+[2026-08-31T18:15:42.986+0000] {subprocess.py:106} INFO - [0m18:15:42  2 of 9 (1) SUCCESS 0
+[2026-08-31T18:15:42.987+0000] {subprocess.py:106} INFO - [0m18:15:42  3 of 9 START external source DEV_BRONZE.order_payments_bronze
+[2026-08-31T18:15:42.989+0000] {subprocess.py:106} INFO - [0m18:15:42  3 of 9 (1) alter external table OLIST_WAREHOUSE.DEV_BRONZE.order_payments_bronze refresh;  ...
+[2026-08-31T18:15:44.722+0000] {subprocess.py:106} INFO - [0m18:15:44  3 of 9 (1) SUCCESS 0
+[2026-08-31T18:15:44.723+0000] {subprocess.py:106} INFO - [0m18:15:44  4 of 9 START external source DEV_BRONZE.order_reviews_bronze
+[2026-08-31T18:15:44.726+0000] {subprocess.py:106} INFO - [0m18:15:44  4 of 9 (1) alter external table OLIST_WAREHOUSE.DEV_BRONZE.order_reviews_bronze refresh;   ...
+[2026-08-31T18:15:47.165+0000] {subprocess.py:106} INFO - [0m18:15:47  4 of 9 (1) SUCCESS 0
+[2026-08-31T18:15:47.166+0000] {subprocess.py:106} INFO - [0m18:15:47  5 of 9 START external source DEV_BRONZE.customers_bronze
+[2026-08-31T18:15:47.169+0000] {subprocess.py:106} INFO - [0m18:15:47  5 of 9 (1) alter external table OLIST_WAREHOUSE.DEV_BRONZE.customers_bronze refresh;       ...
+[2026-08-31T18:15:49.234+0000] {subprocess.py:106} INFO - [0m18:15:49  5 of 9 (1) SUCCESS 0
+[2026-08-31T18:15:49.235+0000] {subprocess.py:106} INFO - [0m18:15:49  6 of 9 START external source DEV_BRONZE.products_bronze
+[2026-08-31T18:15:49.238+0000] {subprocess.py:106} INFO - [0m18:15:49  6 of 9 (1) alter external table OLIST_WAREHOUSE.DEV_BRONZE.products_bronze refresh;        ...
+[2026-08-31T18:15:51.278+0000] {subprocess.py:106} INFO - [0m18:15:51  6 of 9 (1) SUCCESS 0
+[2026-08-31T18:15:51.280+0000] {subprocess.py:106} INFO - [0m18:15:51  7 of 9 START external source DEV_BRONZE.sellers_bronze
+[2026-08-31T18:15:51.282+0000] {subprocess.py:106} INFO - [0m18:15:51  7 of 9 (1) alter external table OLIST_WAREHOUSE.DEV_BRONZE.sellers_bronze refresh;        c...
+[2026-08-31T18:15:53.707+0000] {subprocess.py:106} INFO - [0m18:15:53  7 of 9 (1) SUCCESS 0
+[2026-08-31T18:15:53.709+0000] {subprocess.py:106} INFO - [0m18:15:53  8 of 9 START external source DEV_BRONZE.geolocation_bronze
+[2026-08-31T18:15:53.711+0000] {subprocess.py:106} INFO - [0m18:15:53  8 of 9 (1) alter external table OLIST_WAREHOUSE.DEV_BRONZE.geolocation_bronze refresh;     ...
+[2026-08-31T18:15:55.156+0000] {subprocess.py:106} INFO - [0m18:15:55  8 of 9 (1) SUCCESS 0
+[2026-08-31T18:15:55.158+0000] {subprocess.py:106} INFO - [0m18:15:55  9 of 9 START external source DEV_BRONZE.product_category_name_translation_bronze
+[2026-08-31T18:15:55.159+0000] {subprocess.py:106} INFO - [0m18:15:55  9 of 9 (1) alter external table OLIST_WAREHOUSE.DEV_BRONZE.product_category_name_translatio...
+[2026-08-31T18:15:56.902+0000] {subprocess.py:106} INFO - [0m18:15:56  9 of 9 (1) SUCCESS 0
+[2026-08-31T18:15:57.540+0000] {subprocess.py:106} INFO - [0m18:15:57  [[33mWARNING[0m][DeprecationsSummary]: Deprecated functionality
+[2026-08-31T18:15:57.540+0000] {subprocess.py:106} INFO - Summary of encountered deprecations:
+[2026-08-31T18:15:57.540+0000] {subprocess.py:106} INFO - - CustomKeyInObjectDeprecation: 67 occurrences
+[2026-08-31T18:15:57.541+0000] {subprocess.py:106} INFO - - MissingArgumentsPropertyInGenericTestDeprecation: 7 occurrences
+[2026-08-31T18:15:57.541+0000] {subprocess.py:106} INFO - To see all deprecation instances instead of just the first occurrence of each,
+[2026-08-31T18:15:57.541+0000] {subprocess.py:106} INFO - run command again with the `--show-all-deprecations` flag. You may also need to
+[2026-08-31T18:15:57.542+0000] {subprocess.py:106} INFO - run with `--no-partial-parse` as some deprecations are only encountered during
+[2026-08-31T18:15:57.542+0000] {subprocess.py:106} INFO - parsing.
+[2026-08-31T18:15:58.899+0000] {subprocess.py:110} INFO - Command exited with return code 0
+[2026-08-31T18:15:58.944+0000] {taskinstance.py:340} INFO - ::group::Post task execution logs
+[2026-08-31T18:15:58.944+0000] {taskinstance.py:352} INFO - Marking task as SUCCESS. dag_id=airbyte_to_dbt_pipeline_dev, task_id=stage_external_sources, run_id=manual__2026-08-31T17:53:11.656222+00:00, execution_date=20260831T175311, start_date=20260831T181523, end_date=20260831T181558
+[2026-08-31T18:15:58.982+0000] {local_task_job_runner.py:266} INFO - Task exited with return code 0
+[2026-08-31T18:15:59.012+0000] {taskinstance.py:3895} INFO - 1 downstream tasks scheduled from follow-on schedule check
+[2026-08-31T18:15:59.016+0000] {local_task_job_runner.py:245} INFO - ::endgroup::

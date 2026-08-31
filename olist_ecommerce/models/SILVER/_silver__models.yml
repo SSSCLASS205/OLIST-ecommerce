@@ -129,18 +129,18 @@ unit_tests:
              order_purchase_timestamp: '2024-01-01', order_approved_at: '2024-01-01',
              order_delivered_carrier_date: null, order_delivered_customer_date: null,
              order_estimated_delivery_date: '2024-01-10',
-             update_at: '2024-01-05', _airbyte_emitted_at: '2024-01-05'}
+             update_at: '2024-01-05', _airbyte_extracted_at: '2024-01-05'}
           - {order_id: 'o1', customer_id: 'c1', order_status: 'delivered',
              order_purchase_timestamp: '2024-01-01', order_approved_at: '2024-01-01',
              order_delivered_carrier_date: '2024-01-08', order_delivered_customer_date: '2024-01-09',
              order_estimated_delivery_date: '2024-01-10',
-             update_at: '2024-01-09', _airbyte_emitted_at: '2024-01-09'}
+             update_at: '2024-01-09', _airbyte_extracted_at: '2024-01-09'}
     expect:
       rows:
         - {order_id: 'o1', order_status: 'delivered', update_at: '2024-01-09'}
 
   - name: test_orders_silver_tiebreak_on_emitted_at
-    description: Same update_at, later _airbyte_emitted_at wins.
+    description: Same update_at, later _airbyte_extracted_at wins.
     model: orders_silver
     overrides:
       macros:
@@ -152,12 +152,12 @@ unit_tests:
              order_purchase_timestamp: '2024-01-01', order_approved_at: null,
              order_delivered_carrier_date: null, order_delivered_customer_date: null,
              order_estimated_delivery_date: '2024-01-10',
-             update_at: '2024-01-02', _airbyte_emitted_at: '2024-01-02 09:00:00'}
+             update_at: '2024-01-02', _airbyte_extracted_at: '2024-01-02 09:00:00'}
           - {order_id: 'o2', customer_id: 'c2', order_status: 'approved',
              order_purchase_timestamp: '2024-01-01', order_approved_at: '2024-01-02',
              order_delivered_carrier_date: null, order_delivered_customer_date: null,
              order_estimated_delivery_date: '2024-01-10',
-             update_at: '2024-01-02', _airbyte_emitted_at: '2024-01-02 15:00:00'}
+             update_at: '2024-01-02', _airbyte_extracted_at: '2024-01-02 15:00:00'}
     expect:
       rows:
         - {order_id: 'o2', order_status: 'approved'}
@@ -173,10 +173,10 @@ unit_tests:
         rows:
           - {order_id: 'o1', order_item_id: 1, product_id: 'p1', seller_id: 's1',
              shipping_limit_date: '2024-01-05', price: 100, freight_value: 10,
-             _airbyte_emitted_at: '2024-01-01'}
+             _airbyte_extracted_at: '2024-01-01'}
           - {order_id: 'o1', order_item_id: 1, product_id: 'p1', seller_id: 's1',
              shipping_limit_date: '2024-01-05', price: 120, freight_value: 10,
-             _airbyte_emitted_at: '2024-01-03'}
+             _airbyte_extracted_at: '2024-01-03'}
     expect:
       rows:
         - {order_id: 'o1', order_item_id: 1, price: 120}
@@ -191,10 +191,10 @@ unit_tests:
         rows:
           - {order_id: 'o1', order_item_id: 1, product_id: 'p1', seller_id: 's1',
              shipping_limit_date: '2024-01-05', price: 100, freight_value: 10,
-             _airbyte_emitted_at: '2024-01-01'}
+             _airbyte_extracted_at: '2024-01-01'}
           - {order_id: 'o1', order_item_id: 2, product_id: 'p2', seller_id: 's1',
              shipping_limit_date: '2024-01-05', price: 50, freight_value: 5,
-             _airbyte_emitted_at: '2024-01-01'}
+             _airbyte_extracted_at: '2024-01-01'}
     expect:
       rows:
         - {order_id: 'o1', order_item_id: 1, price: 100}
@@ -210,9 +210,9 @@ unit_tests:
       - input: source('BRONZE', 'order_payments_bronze')
         rows:
           - {order_id: 'o1', payment_sequential: 1, payment_type: 'credit_card',
-             payment_installments: 1, payment_value: 100, _airbyte_emitted_at: '2024-01-01'}
+             payment_installments: 1, payment_value: 100, _airbyte_extracted_at: '2024-01-01'}
           - {order_id: 'o1', payment_sequential: 1, payment_type: 'credit_card',
-             payment_installments: 2, payment_value: 100, _airbyte_emitted_at: '2024-01-04'}
+             payment_installments: 2, payment_value: 100, _airbyte_extracted_at: '2024-01-04'}
     expect:
       rows:
         - {order_id: 'o1', payment_sequential: 1, payment_installments: 2}
@@ -229,13 +229,13 @@ unit_tests:
       - input: source('BRONZE', 'order_payments_bronze')
         rows:
           - {order_id: 'o1', payment_sequential: 1, payment_type: 'voucher',
-             payment_installments: 0, payment_value: 50, _airbyte_emitted_at: '2024-01-01'}
+             payment_installments: 0, payment_value: 50, _airbyte_extracted_at: '2024-01-01'}
           - {order_id: 'o2', payment_sequential: 1, payment_type: 'credit_card',
-             payment_installments: 1, payment_value: 100, _airbyte_emitted_at: '2024-01-01'}
+             payment_installments: 1, payment_value: 100, _airbyte_extracted_at: '2024-01-01'}
           - {order_id: 'o3', payment_sequential: 1, payment_type: 'credit_card',
-             payment_installments: 3, payment_value: 300, _airbyte_emitted_at: '2024-01-01'}
+             payment_installments: 3, payment_value: 300, _airbyte_extracted_at: '2024-01-01'}
           - {order_id: 'o4', payment_sequential: 1, payment_type: 'credit_card',
-             payment_installments: 6, payment_value: 600, _airbyte_emitted_at: '2024-01-01'}
+             payment_installments: 6, payment_value: 600, _airbyte_extracted_at: '2024-01-01'}
     expect:
       rows:
         - {order_id: 'o1', level_of_installment: 'NONE'}
@@ -255,11 +255,11 @@ unit_tests:
           - {review_id: 'r1', order_id: 'o1', review_score: 3,
              review_comment_title: null, review_comment_message: null,
              review_creation_date: '2024-01-01', review_answer_timestamp: null,
-             update_at: '2024-01-01', _airbyte_emitted_at: '2024-01-01'}
+             update_at: '2024-01-01', _airbyte_extracted_at: '2024-01-01'}
           - {review_id: 'r1', order_id: 'o1', review_score: 5,
              review_comment_title: 'Great!', review_comment_message: 'loved it',
              review_creation_date: '2024-01-01', review_answer_timestamp: '2024-01-03',
-             update_at: '2024-01-03', _airbyte_emitted_at: '2024-01-03'}
+             update_at: '2024-01-03', _airbyte_extracted_at: '2024-01-03'}
     expect:
       rows:
         - {review_id: 'r1', review_score: 5}
@@ -275,11 +275,11 @@ unit_tests:
           - {review_id: 'r2', order_id: 'o2', review_score: 1,
              review_comment_title: null, review_comment_message: null,
              review_creation_date: '2024-01-01', review_answer_timestamp: null,
-             update_at: '2024-01-01', _airbyte_emitted_at: '2024-01-01 09:00:00'}
+             update_at: '2024-01-01', _airbyte_extracted_at: '2024-01-01 09:00:00'}
           - {review_id: 'r2', order_id: 'o2', review_score: 4,
              review_comment_title: null, review_comment_message: null,
              review_creation_date: '2024-01-01', review_answer_timestamp: null,
-             update_at: '2024-01-01', _airbyte_emitted_at: '2024-01-01 15:00:00'}
+             update_at: '2024-01-01', _airbyte_extracted_at: '2024-01-01 15:00:00'}
     expect:
       rows:
         - {review_id: 'r2', review_score: 4}
@@ -297,12 +297,12 @@ unit_tests:
              product_name_lenght: 40, product_description_lenght: 200,
              product_photos_qty: 1, product_weight_g: 500,
              product_length_cm: 10, product_height_cm: 10, product_width_cm: 10,
-             update_at: '2024-01-01', _airbyte_emitted_at: '2024-01-01'}
+             update_at: '2024-01-01', _airbyte_extracted_at: '2024-01-01'}
           - {product_id: 'p1', product_category_name: 'beleza_saude',
              product_name_lenght: 40, product_description_lenght: 200,
              product_photos_qty: 3, product_weight_g: 500,
              product_length_cm: 10, product_height_cm: 10, product_width_cm: 10,
-             update_at: '2024-01-05', _airbyte_emitted_at: '2024-01-05'}
+             update_at: '2024-01-05', _airbyte_extracted_at: '2024-01-05'}
       - input: source('BRONZE', 'product_category_name_translation_bronze')
         rows:
           - {product_category_name: 'beleza_saude', product_category_name_english: 'health_beauty'}
@@ -323,7 +323,7 @@ unit_tests:
              product_name_lenght: 20, product_description_lenght: 100,
              product_photos_qty: 2, product_weight_g: 300,
              product_length_cm: 5, product_height_cm: 5, product_width_cm: 5,
-             update_at: '2024-01-01', _airbyte_emitted_at: '2024-01-01'}
+             update_at: '2024-01-01', _airbyte_extracted_at: '2024-01-01'}
       - input: source('BRONZE', 'product_category_name_translation_bronze')
         rows: []
     expect:
@@ -347,11 +347,11 @@ unit_tests:
           - {geolocation_id: 1, geolocation_zip_code_prefix: '01310',
              geolocation_lat: -23.561, geolocation_lng: -46.656,
              geolocation_city: 'sao paulo', geolocation_state: 'SP',
-             _airbyte_emitted_at: '2024-01-01'}
+             _airbyte_extracted_at: '2024-01-01'}
           - {geolocation_id: 2, geolocation_zip_code_prefix: '01310',
              geolocation_lat: -23.561, geolocation_lng: -46.656,
              geolocation_city: 'sao paulo', geolocation_state: 'SP',
-             _airbyte_emitted_at: '2024-01-01'}
+             _airbyte_extracted_at: '2024-01-01'}
       - input: ref('list_braziliancities')
         rows:
           - {City: 'Sao Paulo', UF: 'SP', State: 'Sao Paulo'}
@@ -372,7 +372,7 @@ unit_tests:
           - {geolocation_id: 3, geolocation_zip_code_prefix: '99999',
              geolocation_lat: -1.0, geolocation_lng: -1.0,
              geolocation_city: 'zzzznotarealcity', geolocation_state: 'SP',
-             _airbyte_emitted_at: '2024-01-01'}
+             _airbyte_extracted_at: '2024-01-01'}
       - input: ref('list_braziliancities')
         rows:
           - {City: 'Sao Paulo', UF: 'SP', State: 'Sao Paulo'}
