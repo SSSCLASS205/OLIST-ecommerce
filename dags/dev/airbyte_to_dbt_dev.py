@@ -93,7 +93,8 @@ with DAG(
         task_id="stage_external_sources",
         bash_command=(
             f"cd {DBT_PROJECT_DIR}/olist_ecommerce && "
-            f"dbt run-operation stage_external_sources --profiles-dir {DBT_PROFILES_DIR} --target {DBT_TARGET}"
+            f"dbt run-operation stage_external_sources --profiles-dir {DBT_PROFILES_DIR} "
+            f"--target {DBT_TARGET} --vars '{{\"ext_full_refresh\": true}}'"
         ),
     )
 

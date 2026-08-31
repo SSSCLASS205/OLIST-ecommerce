@@ -10,16 +10,16 @@ WITH changed_sellers AS (
 
     SELECT DISTINCT
         seller_id
-    FROM {{ ref('sellers_snapshot') }}
+    FROM {{ ref('sellers_snapshot') }} snap
 
     {% if is_incremental() %}
 
-    WHERE _airbyte_extracted_at >= (
+    WHERE snap._airbyte_extracted_at >= (
         SELECT COALESCE(
-            MAX(_airbyte_extracted_at),
+            MAX(existing._airbyte_extracted_at),
             '1900-01-01'::timestamp
         )
-        FROM {{ this }}
+        FROM {{ this }} existing
     )
 
     {% endif %}
